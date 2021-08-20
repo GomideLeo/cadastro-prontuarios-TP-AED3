@@ -1,10 +1,14 @@
 package Manager;
-import model.Pessoa;
+import model.Prontuario;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 
 public class DbManager {
 
@@ -14,15 +18,40 @@ public class DbManager {
         this.filePath = filePath;
     }
 
-    public byte[] getByteArray(Pessoa pessoa) {
+    public void writeToFile(byte data[]) {
+        try {
+            FileOutputStream arquivo = new FileOutputStream(filePath);
+            arquivo.write(data);
+            arquivo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public byte[] readFromFile(int len) {
+
+        byte[] data = new byte[len];
+        try {
+            FileInputStream arquivo = new FileInputStream(filePath);
+            data = arquivo.readNBytes(len);
+            arquivo.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+
+    public byte[] getByteArray(Prontuario prontuario) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
         DataOutputStream dos = new DataOutputStream(baos);
 
         try {
-            // dos.writeInt(pessoa.getCodigo());
-            // dos.writeUTF(pessoa.nome);
-            // dos.writeByte(pessoa.idade);
-            // dos.writeFloat(pessoa.salario);
+            dos.writeInt(prontuario.getCodigo());
+            dos.writeUTF(prontuario.getNome());
+            dos.writeLong(prontuario.getDataNascimento().getTime());
+            dos.writeChar(prontuario.getSexo());
+            dos.writeUTF(prontuario.getAnotacoes());
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -31,19 +60,22 @@ public class DbManager {
         return baos.toByteArray();
     }
 
-    public void setByteArray(byte [] v) {
+    public Prontuario setByteArray(byte [] v) {
         ByteArrayInputStream bais = new ByteArrayInputStream(v);
         DataInputStream dis = new DataInputStream(bais);
 
-        Pessoa pessoa = new Pessoa();
+        Prontuario prontuario = new Prontuario();
         try {
-            // pessoa.codigo = dis.readInt();
-            // pessoa.nome = dis.readUTF();
-            // pessoa.idade = dis.readByte();
-            // pessoa.salario = dis.readFloat();
+            prontuario.setCodigo(dis.readInt());
+            prontuario.setNome(dis.readUTF());
+            Date date = new Date(dis.readLong());
+            prontuario.setDataNascimento(date);
+            prontuario.setSexo(dis.readChar());
+            prontuario.setAnotacoes(dis.readUTF());
         }
         catch (IOException e) {
             e.printStackTrace();
-        }        
+        }
+        return prontuario;        
     }
 }
