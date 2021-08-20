@@ -75,10 +75,10 @@ public class Prontuario {
     @Override
     public String toString() {
         SimpleDateFormat dFormat = new SimpleDateFormat("yyyy-MM-dd");
-
+        
         return "\nCódigo: " + codigo +
                "\nNome: " + nome +
-               "\nData de Nascimento" + dFormat.format(dataNascimento) +
+               "\nData de Nascimento: " + dFormat.format(dataNascimento) +
                "\nSexo: " + sexo +
                "\nAnotações: " + anotacoes;
     }
