@@ -1,11 +1,7 @@
 package model;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class Prontuario {
 
@@ -40,6 +36,10 @@ public class Prontuario {
         this.dataNascimento = dataNascimento;
     }
 
+    public void setDataNascimento(long dataNascimento) {
+        this.dataNascimento = new Date(dataNascimento);
+    }
+
     public char getSexo() {
         return this.sexo;
     }
@@ -63,7 +63,7 @@ public class Prontuario {
         this.sexo = '\0';
         this.anotacoes = "";
     }
-
+    
     public Prontuario(int codigo, String nome, Date dataNascimento, char sexo, String anotacoes) {
         this.codigo = codigo;
         this.nome = nome;
@@ -74,42 +74,12 @@ public class Prontuario {
     
     @Override
     public String toString() {
+        SimpleDateFormat dFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         return "\nCódigo: " + codigo +
                "\nNome: " + nome +
-               "\nIdade: " + idade +
-               "\nSalario: " + salario;
+               "\nData de Nascimento" + dFormat.format(dataNascimento) +
+               "\nSexo: " + sexo +
+               "\nAnotações: " + anotacoes;
     }
-    
-    public byte[] getByteArray() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        DataOutputStream dos = new DataOutputStream(baos);
-        
-        try {
-            dos.writeInt(codigo);
-            dos.writeUTF(nome);
-            dos.writeByte(idade);
-            dos.writeFloat(salario);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return baos.toByteArray();
-    }
-
-    public void setByteArray(byte [] v) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(v);
-        DataInputStream dis = new DataInputStream(bais);
-
-        try {
-            codigo = dis.readInt();
-            nome = dis.readUTF();
-            idade = dis.readByte();
-            salario = dis.readFloat();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }        
-    }
-    
 }
