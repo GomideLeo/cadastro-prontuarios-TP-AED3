@@ -1,14 +1,6 @@
-package Manager;
-import model.Prontuario;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+package manager;
+import java.io.RandomAccessFile;
 import java.io.IOException;
-import java.util.Date;
 
 public class DbManager {
 
@@ -18,64 +10,33 @@ public class DbManager {
         this.filePath = filePath;
     }
 
-    public void writeToFile(byte data[]) {
+    public void writeToFile(byte data[], int offset, int len) {
         try {
-            FileOutputStream arquivo = new FileOutputStream(filePath);
-            arquivo.write(data);
+            RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
+            arquivo.seek(offset);
+            arquivo.write(data, 0, len);
             arquivo.close();
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    
+    public void writeToFileBody(byte data[], int offset, int len, int headerSize) {
+        writeToFile(data, offset+headerSize, len);
+    }
 
-    public byte[] readFromFile(int len) {
+    public byte[] readFromFile(int len, int offset) throws Exception{
 
         byte[] data = new byte[len];
-        try {
-            FileInputStream arquivo = new FileInputStream(filePath);
-            data = arquivo.readNBytes(len);
-            arquivo.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
+        arquivo.seek(offset);
+        arquivo.read(data);
+        arquivo.close();
+
         return data;
     }
 
-
-    public byte[] getByteArray(Prontuario prontuario) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-        DataOutputStream dos = new DataOutputStream(baos);
-
-        try {
-            dos.writeInt(prontuario.getCodigo());
-            dos.writeUTF(prontuario.getNome());
-            dos.writeLong(prontuario.getDataNascimento().getTime());
-            dos.writeChar(prontuario.getSexo());
-            dos.writeUTF(prontuario.getAnotacoes());
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return baos.toByteArray();
-    }
-
-    public Prontuario setByteArray(byte [] v) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(v);
-        DataInputStream dis = new DataInputStream(bais);
-
-        Prontuario prontuario = new Prontuario();
-        try {
-            prontuario.setCodigo(dis.readInt());
-            prontuario.setNome(dis.readUTF());
-            Date date = new Date(dis.readLong());
-            prontuario.setDataNascimento(date);
-            prontuario.setSexo(dis.readChar());
-            prontuario.setAnotacoes(dis.readUTF());
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        return prontuario;        
+    public byte[] readFromFileBody(int len, int offset, int headerSize) throws Exception {
+        return readFromFile(len, offset+headerSize);
     }
 }
