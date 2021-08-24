@@ -159,7 +159,7 @@ public class DbManager {
     }
 
     public byte[] readFromFileBody(int len, int offset) throws Exception {
-        return readFromFile(len * registerSize, offset + headerSize);
+        return readFromFile(len * registerSize, (offset * registerSize) + headerSize);
     }
 
     public int getFirstEmpty() throws Exception {
