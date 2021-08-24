@@ -149,7 +149,7 @@ public class DbManager {
             throw new IndexOutOfBoundsException();
         }
 
-        byte[] data = new byte[(offset + (len * registerSize)) > fileSize ? fileSize - (offset + (len * registerSize)) : (len * registerSize)];
+        byte[] data = new byte[(offset + len) > fileSize ? fileSize - offset : len];
         RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
         arquivo.seek(offset);
         arquivo.read(data);
@@ -164,9 +164,8 @@ public class DbManager {
 
     public int getFirstEmpty() throws Exception {
         RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
-        arquivo.seek(headerSize);
         for (int i = 0; i < fileSize; i++) {
-            arquivo.skipBytes(i * registerSize);
+            arquivo.seek((i*registerSize) + headerSize);
             if (arquivo.readChar() == '*') {
                 arquivo.close();
                 return i;
