@@ -33,7 +33,7 @@ public class ProntuarioManager {
             throw new Exception("RegisterSize invalid");
     }
 
-    public byte[] prontuarioToByteArray(Prontuario prontuario) {
+    public byte[] prontuarioToByteArray(Prontuario prontuario) throws IndexOutOfBoundsException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
         DataOutputStream dos = new DataOutputStream(baos);
 
@@ -43,16 +43,19 @@ public class ProntuarioManager {
             dos.writeUTF(prontuario.getNome());
             dos.writeLong(prontuario.getDataNascimento().getTime());
             dos.writeChar(prontuario.getSexo());
-            dos.writeUTF(
-                prontuario.getAnotacoes().substring(0, 
-                    prontuario.getAnotacoes().length() > registerSize - baos.toByteArray().length -2 ? 
-                    registerSize - baos.toByteArray().length -2 : 
-                    prontuario.getAnotacoes().length() 
-                )
-            );
-            if (baos.toByteArray().length < registerSize){
+            dos.writeUTF(prontuario.getAnotacoes());
+            // dos.writeUTF(
+            //     prontuario.getAnotacoes().substring(0, 
+            //         prontuario.getAnotacoes().length() > registerSize - baos.toByteArray().length -2 ? 
+            //         registerSize - baos.toByteArray().length -2 : 
+            //         prontuario.getAnotacoes().length() 
+            //     )
+            // );
+            if (baos.toByteArray().length <= registerSize){
                 byte[] tailLength = new byte[registerSize - baos.toByteArray().length];
                 dos.write(tailLength);
+            } else {
+                throw new IndexOutOfBoundsException("Prontuário excede limite de tamanho.");
             }
         } catch (IOException e) {
             e.printStackTrace();
