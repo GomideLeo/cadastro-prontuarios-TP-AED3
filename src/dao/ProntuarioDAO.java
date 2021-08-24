@@ -34,6 +34,10 @@ public class ProntuarioDAO {
         return p;
     }
 
+    public void writeHeader(){
+        
+    }
+
     public Prontuario[] readNProntuarios(int n, int offset){
         byte[] vet = dbm.readFromFileBody(pm.getRegisterSize()*n, offset*pm.getRegisterSize(), headerSize);
         Prontuario[] p = new Prontuario[n];
