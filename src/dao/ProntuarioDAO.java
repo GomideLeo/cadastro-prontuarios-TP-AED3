@@ -1,26 +1,29 @@
 package dao;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import manager.*;
 import model.*;
 
 public class ProntuarioDAO {
-    protected int headerSize;
     protected ProntuarioManager pm;
     protected DbManager dbm;
-
-    public ProntuarioDAO() {
-        pm = new ProntuarioManager();
-        dbm = new DbManager("dados/pessoa.db");
-        headerSize = 0;
+    protected int registerSize;
+    
+    public ProntuarioDAO(String filePath) {
+        try {
+            dbm = new DbManager(filePath);
+            registerSize = dbm.getRegisterSize();
+            pm = new ProntuarioManager(registerSize);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public ProntuarioDAO(int registerSize) {
+    public ProntuarioDAO(String filePath, int registerSize) {
+        this.registerSize = registerSize;
         try {
             pm = new ProntuarioManager(registerSize);
-            dbm = new DbManager("dados/pessoa.db");
-            headerSize = 0;
+            dbm = new DbManager(filePath, registerSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -33,28 +36,18 @@ public class ProntuarioDAO {
 
         return p;
     }
-
-    public void writeHeader(){
-        
-    }
-
-    public Prontuario[] readNProntuarios(int n, int offset){
-        byte[] vet = dbm.readFromFileBody(pm.getRegisterSize()*n, offset*pm.getRegisterSize(), headerSize);
+    
+    public Prontuario[] readNProntuarios(int n, int offset) throws Exception{
+        byte[] vet = dbm.readFromFileBody(n, offset);
         Prontuario[] p = new Prontuario[n];
-        for(int i = 0; i < p.length; i++){
-            p[i] = pm.byteArrayToProntuario(Arrays.copyOfRange(vet, i*200, (i+1)*200));
+        for(int i = 0; i < p.length && i * registerSize < vet.length; i++){
+            p[i] = pm.byteArrayToProntuario(Arrays.copyOfRange(vet, i * registerSize, (i+1) * registerSize));
         }
         return p;
     }
 
-    public int getFirstEmpty(){
-        int size = pm.getRegisterSize();
-        int i = 0;
-        Prontuario p = null;
-        do{
-            p = pm.byteArrayToProntuario(dbm.readFromFileBody(size, size*i++, headerSize));
-        }while(p != null);
-        return i;
+    public int getFirstEmpty() throws Exception{
+        return dbm.getFirstEmpty();
     }
 
 }
