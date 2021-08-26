@@ -139,6 +139,10 @@ public class DbManager {
         }
     }
 
+    public void appendToFile(byte data[]){
+        writeToFile(data, this.fileSize);
+    }
+
     public void writeToFileBody(byte data[], int offset) {
         writeToFile(data, (offset * registerSize) + headerSize);
     }
@@ -164,7 +168,7 @@ public class DbManager {
 
     public int getFirstEmpty() throws Exception {
         RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
-        for (int i = 0; i < fileSize; i++) {
+        for (int i = 0; (i*registerSize + headerSize) < fileSize; i++) {
             arquivo.seek((i*registerSize) + headerSize);
             if (arquivo.readChar() == '*') {
                 arquivo.close();

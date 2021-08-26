@@ -16,10 +16,11 @@ public class App {
         
         try {
             ProntuarioDAO pdao = new ProntuarioDAO("dados/pessoa.db");
+            // pdao.writeProntuario(p1);
             
-            for (Prontuario p : pdao.readNProntuarios(10, 0)) {
-                System.out.println(p);
-            }
+            // for (Prontuario p : pdao.readNProntuarios(10, 0)) {
+                System.out.println(pdao.getProntuario(2));
+            // }
         
         } catch (Exception e) {
             e.printStackTrace();
