@@ -37,7 +37,7 @@ public class DbManager {
     }
 
     public int getNextCode() {
-        setNextCode(nextCode++);
+        setNextCode(nextCode+1);
         return nextCode - 1;
     }
 

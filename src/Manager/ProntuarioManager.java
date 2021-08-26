@@ -33,12 +33,12 @@ public class ProntuarioManager {
             throw new Exception("RegisterSize invalid");
     }
 
-    public byte[] prontuarioToByteArray(Prontuario prontuario) throws IndexOutOfBoundsException {
+    public byte[] prontuarioToByteArray(Prontuario prontuario, boolean delete) throws IndexOutOfBoundsException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
         DataOutputStream dos = new DataOutputStream(baos);
 
         try {
-            dos.writeChar('\0');
+            dos.writeChar(delete ? '*': '\0');
             dos.writeInt(prontuario.getCodigo());
             dos.writeUTF(prontuario.getNome());
             dos.writeLong(prontuario.getDataNascimento().getTime());
@@ -62,6 +62,10 @@ public class ProntuarioManager {
         }
         
         return baos.toByteArray();
+    }
+
+    public byte[] prontuarioToByteArray(Prontuario prontuario) throws IndexOutOfBoundsException {
+        return prontuarioToByteArray(prontuario, false);
     }
 
     public Prontuario byteArrayToProntuario(byte [] v) {

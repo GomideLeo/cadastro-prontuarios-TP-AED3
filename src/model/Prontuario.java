@@ -64,6 +64,14 @@ public class Prontuario {
         this.anotacoes = "";
     }
     
+    public Prontuario(int codigo) {
+        this.codigo = codigo;
+        this.nome = "";
+        this.dataNascimento = new Date(0);
+        this.sexo = '\0';
+        this.anotacoes = "";
+    }
+
     public Prontuario(int codigo, String nome, Date dataNascimento, char sexo, String anotacoes) {
         this.codigo = codigo;
         this.nome = nome;

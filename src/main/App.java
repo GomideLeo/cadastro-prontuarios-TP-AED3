@@ -1,29 +1,113 @@
 package main;
+
 import java.util.Date;
+import java.util.Scanner;
 
 import dao.*;
 import manager.*;
 import model.*;
 
 public class App {
+    static Scanner s = new Scanner(System.in);
+    static ProntuarioDAO pdao = new ProntuarioDAO("dados/pessoa.db");
+
     public static void main(String[] args) {
-        
-        Prontuario p1 = new Prontuario(1, "leozao da ", new Date(100,8,16), 'M', "sou binariiiiiiiiiiiiiiiiiooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
-        
-        // System.out.println(p1);
-        // System.out.println(p2);
-        // System.out.println(p3);
-        
+
         try {
-            ProntuarioDAO pdao = new ProntuarioDAO("dados/pessoa.db");
-            // pdao.writeProntuario(p1);
-            
-            // for (Prontuario p : pdao.readNProntuarios(10, 0)) {
-                System.out.println(pdao.getProntuario(2));
-            // }
-        
+            int i = 0;
+
+            do {
+                System.out.println("#====================#\n" + "|        Menu        |\n" + "|  0. Exit           |\n"
+                        + "|  1. Create         |\n" + "|  2. Read           |\n" + "|  3. Update         |\n"
+                        + "|  4. Delete         |\n" + "|  5. Read N         |\n" + "#====================#\n");
+
+                i = s.nextInt();
+                s.nextLine();
+
+                switch (i) {
+                    case 1:
+                        create();
+                        break;
+                    case 2:
+                        read();
+                        break;
+                    case 3:
+                        update();
+                        break;
+                    case 4:
+                        delete();
+                        break;
+                    case 5:
+                        readN();
+                        break;
+                }
+            } while (i != 0);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    static void create() throws Exception {
+
+        Prontuario p = new Prontuario();
+
+        System.out.println("Nome?");
+        p.setNome(s.nextLine());
+
+        System.out.println("Nascimento? YYYY-MM-DD");
+        String[] nasc = s.nextLine().split("-");
+        p.setDataNascimento(
+                new Date(Integer.parseInt(nasc[0]) - 1900, Integer.parseInt(nasc[1]), Integer.parseInt(nasc[2])));
+
+        System.out.println("Sexo?");
+        p.setSexo(s.nextLine().charAt(0));
+
+        System.out.println("Anotações?");
+        p.setAnotacoes(s.nextLine());
+
+        pdao.createProntuario(p);
+    }
+
+    static void read() {
+
+        System.out.println("Codigo?");
+        System.out.println(pdao.getProntuario(s.nextInt()));
+        s.nextLine();
+    }
+
+    static void update() throws Exception {
+
+        System.out.println("Codigo?");
+        Prontuario p = new Prontuario(s.nextInt());
+        s.nextLine();
+
+        System.out.println("Nome?");
+        p.setNome(s.nextLine());
+
+        System.out.println("Nascimento? YYYY-MM-DD");
+        String[] nasc = s.nextLine().split("-");
+        p.setDataNascimento(
+                new Date(Integer.parseInt(nasc[0]) - 1900, Integer.parseInt(nasc[1]), Integer.parseInt(nasc[2])));
+
+        System.out.println("Sexo?");
+        p.setSexo(s.nextLine().charAt(0));
+
+        System.out.println("Anotações?");
+        p.setAnotacoes(s.nextLine());
+    }
+
+    static void delete() {
+        System.out.println("Codigo?");
+        System.out.println(pdao.deleteProntuario(s.nextInt()));
+        s.nextLine();
+    }
+    
+    static void readN() throws Exception {
+        System.out.println("N?");
+
+        for (Prontuario p : pdao.readNProntuarios(s.nextInt(), 0))
+            System.out.println(p);
+        s.nextLine();
     }
 }
