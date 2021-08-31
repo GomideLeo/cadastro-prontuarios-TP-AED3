@@ -98,6 +98,8 @@ public class App {
 
         System.out.println("Anotações?");
         p.setAnotacoes(s.nextLine());
+
+        System.out.println(pdao.updateProntuario(p));
     }
 
     static void delete() {
