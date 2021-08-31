@@ -4,22 +4,22 @@ import java.util.Date;
 import java.util.Scanner;
 
 import dao.*;
-import manager.*;
 import model.*;
 
 public class App {
     static Scanner s = new Scanner(System.in);
     static ProntuarioDAO pdao = new ProntuarioDAO("dados/pessoa.db");
-
+    
     public static void main(String[] args) {
 
         try {
             int i = 0;
-
+            
             do {
                 System.out.println("#====================#\n" + "|        Menu        |\n" + "|  0. Exit           |\n"
                         + "|  1. Create         |\n" + "|  2. Read           |\n" + "|  3. Update         |\n"
-                        + "|  4. Delete         |\n" + "|  5. Read N         |\n" + "#====================#\n");
+                        + "|  4. Delete         |\n" + "|  5. Read N         |\n" + "|  6.  New File      |\n"
+                        + "#====================#\n");
 
                 i = s.nextInt();
                 s.nextLine();
@@ -39,6 +39,9 @@ public class App {
                         break;
                     case 5:
                         readN();
+                        break;
+                    case 6:
+                        newFile();
                         break;
                 }
             } while (i != 0);
@@ -105,9 +108,16 @@ public class App {
     
     static void readN() throws Exception {
         System.out.println("N?");
-
+        
         for (Prontuario p : pdao.readNProntuarios(s.nextInt(), 0))
             System.out.println(p);
+        s.nextLine();
+    }
+
+    static void newFile() throws Exception {
+        System.out.println("Tamanho do Registro?");
+        pdao = new ProntuarioDAO("dados/pessoa.db", s.nextInt());
+        
         s.nextLine();
     }
 }
