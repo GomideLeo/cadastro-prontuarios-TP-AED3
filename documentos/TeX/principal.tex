@@ -1,0 +1,106 @@
+\documentclass[a4paper,12pt,Times]{article}
+\usepackage{abakos}  %pacote com padrão da Abakos baseado no padrão da PUC
+\usepackage{forest}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Capa da revista
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\setcounter{page}{80} %iniciar contador de pagina de valor especificado
+\newcommand{\monog}{Trabalho Prático de Algoritmos e Estrutura de Dados III - Entrega 1}
+\newcommand{\monogES}{Model - Magazine Abakós - ICEI - PUC Minas}
+\newcommand{\tipo}{Artigo }  % Especificar a seção tipo do trabalho: Artigo, Resumo, Tese, Dociê etc
+\newcommand{\origem}{Brasil}
+\newcommand{\editorial}{\textbf{Abakos}, Belo Horizonte,v. 1, n. 1, p. 00-00, Ago. 2021 - ISSN: 2316-9451}  % p. xx-xx – páginas inicial-final do artigo
+% \newcommand{\lcc}{\scriptsize{Licença Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported}}
+
+%%%%%%%%%%%%%%%%%INFORMAÇÕES SOBRE AUTOR PRINCIPAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\AutorA}{Henrique Castro e Silva}
+\newcommand{\funcaoA}{}
+\newcommand{\emailA}{henrique.silva.1281914@pucminas.br}
+\newcommand{\cursA}{Programa de Graduação em Ciência da computação da PUC Minas}
+
+\newcommand{\AutorB}{Leonardo Caetano Gomide}
+\newcommand{\funcaoB}{}
+\newcommand{\emailB}{lcgomide@sga.pucminas.br}
+\newcommand{\cursB}{Programa de Graduação em Ciência da computação da PUC Minas}
+
+% Definir macros para o nome da Instituição, da Faculdade, etc.
+\newcommand{\univ}{Pontifícia Universidade Católica de Minas Gerais}
+
+\newcommand{\keyword}[1]{\textsf{#1}}
+
+\begin{document}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% Pagina de titulo
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{flushleft}
+
+\begin{minipage} [c][3cm][b]{15cm} % a primeira minipágina tem uma altura de 1.5cm e uma largura de 2.3cm.
+% comando que introduz o logo da escola que nesta altura já terá de estar na pasta imagens que 
+%por sua vez está na pasta onde se guardou o arquivo tex. E introduzimos essa imagem com a mesma altura da minipage.
+\begin{flushleft}
+\includegraphics[scale=1.5]{figuras/header.png} 
+\end{flushleft}
+\end{minipage}
+
+ \vspace{0cm} {
+ \singlespacing \Large{\monog \\ }
+  \normalsize{\monogES}
+ }
+\end{flushleft}
+\begin{flushright}
+\singlespacing 
+\normalsize{\AutorA \footnote{\funcaoA \cursA, \origem -- \emailA }} \\
+\normalsize{\AutorB \footnote{\funcaoB \cursB, \origem -- \emailB }} \\
+% \normalsize{\AutorC \footnote{\funcaoC, E-mail:\emailC \\ \cursC, \origem. }} \\
+% \normalsize{\AutorD \footnote{\funcaoD \\ Pais de origem: \origemD. E-mail: \emailD}} \\
+%deixar com o valor `0` e usar o '*' no inicio da frase
+% \symbolfootnote[0]{Artigo recebido em 10 de julho de 1983 e aprovado em 29 de maio 2012}
+\end{flushright}
+\thispagestyle{empty}
+
+\begin{abstract}
+\noindent
+Este trabalho tem como intenção desenvolver um sistema que faça manipulação de arquivos em memória primária e secundária. O sistema em questão, consiste em um cadastro de prontuários para um empresas de planos de saúde, com opções de inserção, alteração, exclusão e impressão. Conforme estipulado pelo cronograma da disciplina, este trabalho será composto por três entregas complementares, cada entrega responsável por entregar diferentes artefatos. Este documento é referente à primeira entrega, que é composta por diferentes artefatos que foram desenvolvidos pelos alunos. Esses artefatos incluem a criação de um arquivo mestre, o desenvolvimento de um sistema que faça todas as operações de CRUD (criar, ler, atualizar e deletar) e produção de um documento de texto. Para o desenvolvimento dos diferentes requisitos técnicos foram desenvolvidas diferentes classes e funções. A formatação do arquivo mestre, a finalidade e as especificações de cada classe e o funcionamento do sistema em geral serão abordadas neste documento.
+\\\textbf{\keyword{Palavras-chave: }} Algoritmos e Estrutura de Dados. CRUD. Manipulação de arquivos.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage 
+\selectlanguage{english}
+\begin{abstract}
+\noindent
+This assignment focused on developing a system that may manipulate files in primary and secondary memory. The system consists of a registration of medical records, including insertion, updating, exclusion and printing options. According to the discipline’s stipulated schedule, this assignment will be composed of three complementary deliveries, each responsible to deliver different features. This document refers to the first delivery, which is composed by different features developed by the students. These features include the creation of a master file, a system’s development, which include all CRUD (create, read, update, delete) operations, and generation of textual document. In order to develop all the technical issues, different classes and functions were developed. The master file’s formatting, the purpose and specifications’ of each class and the overall systems’ running will be discussed in this document.
+\\\textbf{\keyword{Keywords: }} Algorithms and Data Structure. CRUD. File manipulation.
+\end{abstract}
+
+\selectlanguage{brazilian}
+ \onehalfspace  % espaçamento 1.5 entre linhas
+ \setlength{\parindent}{1.25cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INICIO DO TEXTO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{textos}
+
+% Arquivo com estruturas de referência
+%\include{aux}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FIM DO TEXTO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \selectlanguage{brazil}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Inicio bibliografia
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ \newpage
+ \singlespace{
+ \bibliographystyle{abntex2-alf}
+ \bibliography{bibliografia}
+ }
+
+\end{document}

@@ -1,0 +1,141 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%% Template de Artigo Adaptado para Trabalho de Diplomação do ICEI %%%%%%%%%%%%%%%%%%%%%%%%
+%% codificação UTF-8 - Abntex - Latex -  							     %%
+%% Autor:    Fábio Leandro Rodrigues Cordeiro  (fabioleandro@pucminas.br)                            %% 
+%% Co-autor: Prof. João Paulo Domingos Silva  e Harison da Silva                                     %%
+%% Revisores normas NBR (Padrão PUC Minas): Helenice Rego Cunha e Prof. Theldo Cruz                  %%
+%% Versão: 1.0     13 de março 2014                                                                  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{\esp Introdução}
+
+O trabalho aqui apresentado consiste em um sistema para gerenciamento de prontuários. Para o desenvolvimento desse sistema, foi escolhida a linguagem de programação Java, que permitiu a criação do CRUD completo, a interação com os arquivos de dados e implementação da solução. 
+Nas sessões subsequentes, será abordado a estruturação do projeto e a funcionalidade de seus artefatos. 
+
+
+\section{\esp Estrutura de arquivos}
+
+No intuito de tornar o acesso aos arquivos do projeto  mais claro e simples, os diferentes arquivos foram segmentados em diferentes diretórios seguindo a estrutura abaixo.
+
+
+ \begin{forest}
+      for tree={
+        font=\ttfamily,
+        grow'=0,
+        child anchor=west,
+        parent anchor=south,
+        anchor=west,
+        calign=first,
+        edge path={
+          \noexpand\path [draw, \forestoption{edge}]
+          (!u.south west) +(7.5pt,0) |- (.child anchor) pic {folder} \forestoption{edge label};
+        },
+        before typesetting nodes={
+          if n=1
+            {insert before={[,phantom]}}
+            {}
+        },
+        fit=band,
+        before computing xy={l=15pt},
+      }  
+    [root
+      [/dados]
+      [/src
+        [/dao][/main][/manager][/model]
+      ]
+    ]
+\end{forest}
+
+
+\subsection{\esp Dados}
+
+No diretório "dados" encontram-se os arquivos de dados. Quando o usuário do sistema cria um novo arquivo mestre de dados, ele ficará disponível nesse diretório.
+
+\subsection{\esp Source}
+
+No diretório "src" encontram-se todos os arquivos de código fonte desenvolvidos e necessários para o funcionamento do sistema. Esse diretório por sua vez possível diferente ramificações, conforme será exposto a seguir.
+
+\subsubsection{\esp Dao}
+
+O diretório "dao", abreviado do inglês \textit{Data Acess Object}, encontram-se as classes responsáveis por fazer o acesso aos dados por meio das classes \textit{Manager}. Nessas classes encontram-se os métodos de CRUD. Contudo as classes nesse diretório possuem um nível de abstração superior a outras classes, assim sendo, quando executado algum método, elas são responsáveis de interpretar o objeto passado e delegar as respectivas funções necessárias para outras classes.
+
+\subsubsection{\esp Main}
+
+Nesse diretório encontra-se a classe \textit{App}, que é a primeira classe a ser executada quando o projeto é executado. Por meio dela que ocorre a interação do usuário com o sistema.
+
+\subsubsection{\esp Manager}
+ 
+As classes encontradas no diretório "manager" são as classes que possuem métodos de mais baixo nível dentro do sistema. Ou seja, elas que fazem operações com Bytes, seja na conversão de um objeto para um vetor de bytes, ou vice e versa, e também a escrita, a sobrescrita e a leitura de vetores de Byte. 
+
+Nelas também ja encontram-se métodos responsáveis por manusear os metadados do arquivo, guardar informações sobre os tamanhos do registro e o caminho para o arquivo mestre.
+
+\subsubsection{\esp Model}
+
+Por fim, o diretório "model" é responsável por armazenar as classes que definem os objetos do sistem.
+
+
+\section{\esp Implementação}
+
+Uma vez exposta a estruturação do projeto, pode-se detalhar a implementação dos métodos implantados.
+
+\subsection{\esp Modelo}
+
+As classes de modelo são as estruturas basicas do projeto, definindo os objetos do sistema, como descrito a seguir:
+
+
+\subsubsection{\esp Prontuario}
+
+Em nossa implementação da entidade prontuário optamos pelos seguintes atributos: 
+
+% Tabela
+\begin{table}[htb]
+	\centering
+	\caption{\hspace{0.1cm} Atributos }
+	\vspace{-0.3cm} % espaço entre titulo e tabela
+	\label{tab:tabela1}
+	% Conteúdo da tabela
+	\begin{tabular}{l|c|c}
+  \hline
+    \textbf{Nome}	& \textbf{Tipo de Dado} & \textbf{Tamanho (Bytes)} \\
+    \hline
+     codigo         & int           & 4 \\
+     nome   	    & String        & variável \\
+     dataNascimento	& java.util.Date & 8 \\
+     sexo           & char          & 2 \\
+     anotacoes	    & String        & variável \\
+     \hline
+ \end{tabular}
+\end{table}
+
+Quando o Prontuário é codificado para ser inserido no arquivo de dados, os atributos são salvos nessa ordem utilizando os métodos da classe \textit{java.io.DataOutputStream}, no caso da \textit{dataNascimento}, é obtido a quantidade de milissegundos desde 1970 e codificado como um \textit{long}, no momento dessa codificação se o registro codificado estourar o tamanho pré-definido de registro do arquivo, uma \textit{IndexOutOfBoundsException} é estourada.
+
+\subsection{\esp Arquivos de Dados/Mestre}
+
+Para salvar os dados recebidos do usuário, foi utilizado um arquivo de dados com a extensão .db com cabeçalho e os dados em si, como especificado a seguir:
+
+\subsubsection{\esp Cabeçalho}
+
+O cabeçalho do arquivo contêm diferentes metadados que são utilizados por outras classes do sistema. Os metadados contidos são a variável \textit{registerSize}, especificada pelo usuário, que dita o tamanho fixo do arquivo; a variável \textit{headerSize}, ou tamanho do cabeçalho; o valor do próximo código a ser inserido, denomindado \textit{nextCode}; e por fim o \textit{fileSize}, que armazena o tamanho total do arquivo. 
+
+\subsubsection{\esp Conteúdo}
+
+O conteúdo do arquivo mestre é composto por \textit{n} registros de tamanho \textit{registerSize}. Cada registro é composto pelos campos da classe \textit{Prontuario}, e também é utilizado dois bytes extras como lápide, sendo codificada como \textit{char} com o valor igual a \textit{'\textbackslash0'} por padrão e igual a \textit{'*'} quando o registro for deletado.
+
+\subsection{\esp CRUD}
+A classe \textit{App} fica responsável de "interagir" com o usuário e servir de menu de opções. Uma vez que o usuário passe valores de input válido, a classe cria um objeto da classe \textit{Prontuario} e passa o objeto para a classe \textit{ProntuarioDAO}, que fica encarregada de terminar a operação.
+
+\subsubsection{\esp Create}
+Para a inserção de um registro, a classe primeiro chama o método \textit{getFirstEmpty} que retorna qual a posição do primeiro registro que foi deletado ou retorna -1, caso o registro tenha que ser inserido no fim do arquivo. 
+
+Uma vez com esse \textit{offset}, como foi nomeado dentro do código, a classe DAO converte o objeto Prontuario para um vetor de Bytes, por meio da classe \textit{ProntuarioManager}, e chama a classe \textit{DbManger}, que munida do vetor de bytes e o offset, faz a inserção no arquivo.
+
+\subsubsection{\esp Read}
+A leitura de registro é feita de \textit{n} em \textit{n} registros. Por \textit{default} esse passo é de 100 registros. Para fazer essa leitura é utilizada o método \textit{readFromFileBody}, da classe DbManager, que recebe a quantidade de registros a ser lida e o offset, ou seja, a partir de qual posição ela deverá ler. Esse método retorna um vetor de Bytes, que é convertido em um vetor de Prontuarios. Para registros que possuem um lápide indicando deleção, o registro é convertido em um objeto null.
+
+Uma vez com esse vetor, a classe DAO compara se algum registro possui a ID especificada pelo usuário, caso algum possua ele retorna o prontuário, caso contrário, são lidos novos Prontuários até encontrar o id procurado, ou chegar ao fim do arquivo e retornar null.
+
+\subsubsection{\esp Update}
+O mecanismo de atualização faz uso do método de leitura, descrito acima, para encontrar o prontuário especificado e sua posição no arquivo. Caso encontrado, o objeto prontuário recebe os novos valores passados pelo usuário e em sequência é utilizado o DbManager para sobrescrever o prontuário antigo com as novos dados.
+
+\subsubsection{\esp Delete}
+Similar ao método de atualização, o método de deleção faz uso de outro método para sua operação. Nesse caso, ele utiliza a atualização, que possui uma variável booleana chamada \textit{delete}. Essa variável, é igual a false no método \textit{updateProntuario} onde não se passa esse parâmetro, é responsável por escreve a lápide do registro. Caso o valor do parâmetro seja True, os Bytes da lápide serão escritos de forma a sinalizar a deleção.
