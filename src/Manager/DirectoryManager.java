@@ -1,5 +1,5 @@
 package manager;
 
-public class DirManager {
+public class DirectoryManager {
     
 }
