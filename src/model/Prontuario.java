@@ -1,6 +1,11 @@
 package model;
 
 import java.util.Date;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 public class Prontuario {
@@ -64,6 +69,10 @@ public class Prontuario {
         this.anotacoes = "";
     }
     
+    public Prontuario(byte[] v) {
+        readFromByteArray(v);
+    }
+
     public Prontuario(int codigo) {
         this.codigo = codigo;
         this.nome = "";
@@ -89,5 +98,59 @@ public class Prontuario {
                "\nData de Nascimento: " + dFormat.format(dataNascimento) +
                "\nSexo: " + sexo +
                "\nAnotações: " + anotacoes;
+    }
+
+    public byte[] toByteArray(int registerSize, boolean delete) throws IndexOutOfBoundsException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+
+        try {
+            dos.writeChar(delete ? '*' : '\0');
+            dos.writeInt(this.getCodigo());
+            dos.writeUTF(this.getNome());
+            dos.writeLong(this.getDataNascimento().getTime());
+            dos.writeChar(this.getSexo());
+            dos.writeUTF(this.getAnotacoes());
+            // dos.writeUTF(
+            // prontuario.getAnotacoes().substring(0,
+            // prontuario.getAnotacoes().length() > registerSize - baos.toByteArray().length
+            // -2 ?
+            // registerSize - baos.toByteArray().length -2 :
+            // prontuario.getAnotacoes().length()
+            // )
+            // );
+            if (baos.toByteArray().length <= registerSize) {
+                byte[] tailLength = new byte[registerSize - baos.toByteArray().length];
+                dos.write(tailLength);
+            } else {
+                throw new IndexOutOfBoundsException("Prontuário excede limite de tamanho.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return baos.toByteArray();
+    }
+
+    public byte[] toByteArray(int registerSize) throws IndexOutOfBoundsException {
+        return toByteArray(registerSize, false);
+    }
+    
+    public void readFromByteArray(byte[] v) {
+        ByteArrayInputStream bais = new ByteArrayInputStream(v);
+        DataInputStream dis = new DataInputStream(bais);
+        
+        try {
+            if (dis.readChar() != '*') {
+                this.setCodigo(dis.readInt());
+                this.setNome(dis.readUTF());
+                Date date = new Date(dis.readLong());
+                this.setDataNascimento(date);
+                this.setSexo(dis.readChar());
+                this.setAnotacoes(dis.readUTF());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

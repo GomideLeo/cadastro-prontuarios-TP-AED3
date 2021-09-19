@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class DbManager {
+public class DataManager {
 
     protected String filePath;
     protected int headerSize;
@@ -87,7 +87,7 @@ public class DbManager {
         }
     }
 
-    public DbManager(String filePath) throws FileNotFoundException {
+    public DataManager(String filePath) throws FileNotFoundException {
         this.filePath = filePath;
         File f = new File(filePath);
         if (f.exists()) {
@@ -97,7 +97,7 @@ public class DbManager {
         }
     }
 
-    public DbManager(String filePath, int registerSize) {
+    public DataManager(String filePath, int registerSize) {
         this.filePath = filePath;
         this.registerSize = registerSize;
         this.headerSize = 16;
@@ -112,7 +112,7 @@ public class DbManager {
         writeHeaderData();
     }
 
-    public DbManager(String filePath, int registerSize, int nextCode) {
+    public DataManager(String filePath, int registerSize, int nextCode) {
         this.filePath = filePath;
         this.registerSize = registerSize;
         this.headerSize = 16;

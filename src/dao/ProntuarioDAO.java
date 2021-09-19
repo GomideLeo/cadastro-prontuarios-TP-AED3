@@ -6,15 +6,13 @@ import manager.*;
 import model.*;
 
 public class ProntuarioDAO {
-    protected ProntuarioManager pm;
-    protected DbManager dbm;
+    protected DataManager dataManager;
     protected int registerSize;
 
     public ProntuarioDAO(String filePath) {
         try {
-            dbm = new DbManager(filePath);
-            registerSize = dbm.getRegisterSize();
-            pm = new ProntuarioManager(registerSize);
+            dataManager = new DataManager(filePath);
+            registerSize = dataManager.getRegisterSize();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -23,20 +21,19 @@ public class ProntuarioDAO {
     public ProntuarioDAO(String filePath, int registerSize) {
         this.registerSize = registerSize;
         try {
-            pm = new ProntuarioManager(registerSize);
-            dbm = new DbManager(filePath, registerSize);
+            dataManager = new DataManager(filePath, registerSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public Prontuario getProntuario(int id)  {
+    public Prontuario getProntuario(int id) {
         return getProntuario(id, 100);
     }
 
     private Prontuario getProntuario(int id, int step) {
         Prontuario prontuario = null;
-        int numberOfRegisters = (dbm.getFileSize() - dbm.getHeaderSize()) / registerSize;
+        int numberOfRegisters = (dataManager.getFileSize() - dataManager.getHeaderSize()) / registerSize;
 
         try {
             for (int i = 0; i < numberOfRegisters && prontuario == null; i += step) {
@@ -74,25 +71,25 @@ public class ProntuarioDAO {
         int offset = this.getFirstEmpty();
 
         if (prontuario.getCodigo() == -1) {
-            prontuario.setCodigo(dbm.getNextCode());
+            prontuario.setCodigo(dataManager.getNextCode());
         }
 
         if (offset == -1)
-            dbm.appendToFile(pm.prontuarioToByteArray(prontuario));
+            dataManager.appendToFile(prontuario.toByteArray(registerSize));
         else
-            dbm.writeToFileBody(pm.prontuarioToByteArray(prontuario), offset);
+            dataManager.writeToFileBody(prontuario.toByteArray(registerSize), offset);
     }
 
     public boolean updateProntuario(Prontuario prontuario) {
         return updateProntuario(prontuario, 100, false);
     }
-    
+
     public boolean deleteProntuario(int id) {
         return updateProntuario(new Prontuario(id), 100, true);
     }
 
     private boolean updateProntuario(Prontuario prontuario, int step, boolean delete) {
-        int numberOfRegisters = (dbm.getFileSize() - dbm.getHeaderSize()) / registerSize;
+        int numberOfRegisters = (dataManager.getFileSize() - dataManager.getHeaderSize()) / registerSize;
         int offset = -1;
         int index = -1;
 
@@ -104,29 +101,30 @@ public class ProntuarioDAO {
                     offset = i + index;
                 }
             }
+
+            if (offset >= 0) {
+                prontuario = new Prontuario(dataManager.readFromFileBody(1, offset));
+                dataManager.writeToFileBody(prontuario.toByteArray(registerSize, delete), offset);
+                return true;
+            }
         } catch (Exception e) {
             e.printStackTrace();
-        }
-
-        if (offset >= 0) {
-            dbm.writeToFileBody(pm.prontuarioToByteArray(prontuario, delete), offset);
-            return true;
         }
 
         return false;
     }
 
     public Prontuario[] readNProntuarios(int n, int offset) throws Exception {
-        byte[] vet = dbm.readFromFileBody(n, offset);
+        byte[] vet = dataManager.readFromFileBody(n, offset);
         Prontuario[] p = new Prontuario[n];
         for (int i = 0; i < p.length && i * registerSize < vet.length; i++) {
-            p[i] = pm.byteArrayToProntuario(Arrays.copyOfRange(vet, i * registerSize, (i + 1) * registerSize));
+            p[i] = new Prontuario(Arrays.copyOfRange(vet, i * registerSize, (i + 1) * registerSize));
         }
         return p;
     }
 
     public int getFirstEmpty() throws Exception {
-        return dbm.getFirstEmpty();
+        return dataManager.getFirstEmpty();
     }
 
 }
