@@ -20,6 +20,10 @@ public class Directory {
         this.buckets = new int[(int) Math.pow(2, this.profundidade)];
     }
 
+    public Directory(byte[] data){
+        this.readFromByteArray(data);
+    }
+
     public int hashFunction(int valor) {
         return valor % (int) Math.pow(2, this.profundidade);
     }
@@ -33,6 +37,11 @@ public class Directory {
             newBuckets[i] = newBuckets[n+i] = this.buckets[i];
         }
         this.buckets = newBuckets;
+    }
+
+    public void extendDir(int newBucket, int address) {
+        this.extendDir();
+        this.buckets[newBucket] = address;
     }
 
     public void setProfundidade(int profundidade){

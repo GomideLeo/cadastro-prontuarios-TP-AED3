@@ -62,14 +62,4 @@ public class DirectoryManager {
         return data;
     }
 
-    // public Directory initDir(int profundidade) {
-    //     Directory emptyDir = null;
-    //     try {
-    //         emptyDir = new Directory(profundidade);
-    //         writeDir(emptyDir.toByteArray());
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
-    //     return emptyDir;
-    // }
 }
