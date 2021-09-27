@@ -28,7 +28,7 @@ public class Directory {
         return valor % (int) Math.pow(2, this.profundidade);
     }
 
-    public void extendDir(){
+    private void extendDir(){
         int n = this.buckets.length;
         this.profundidade++;
         int newBuckets[] = new int[n * 2];
