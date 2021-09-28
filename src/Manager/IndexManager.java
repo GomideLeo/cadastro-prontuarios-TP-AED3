@@ -112,4 +112,16 @@ public class IndexManager {
         }
     }
 
+    public int getBucketSize() {
+        return this.bucketSize;
+    }
+
+    public int getNBuckets() {
+        return this.nBuckets;
+    }
+
+    public int getFileSize() {
+        return this.fileSize;
+    }
+
 }

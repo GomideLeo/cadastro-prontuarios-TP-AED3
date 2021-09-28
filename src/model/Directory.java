@@ -12,16 +12,25 @@ public class Directory {
 
     public Directory(){
         this.profundidade = 3;
-        this.buckets = new int[(int) Math.pow(2, this.profundidade)];
+        initDir();
     }
 
     public Directory(int profundidade){
         this.profundidade = profundidade;
-        this.buckets = new int[(int) Math.pow(2, this.profundidade)];
+        initDir();
     }
-
+    
     public Directory(byte[] data){
         this.readFromByteArray(data);
+    }
+
+    private void initDir() {
+        this.buckets = new int[(int) Math.pow(2, this.profundidade)];
+
+        // na inicialização, o indice criado fará referência aos buckets em ordem
+        for (int i = 0; i < profundidade; i++) {
+            this.buckets[i] = i; 
+        }
     }
 
     public int hashFunction(int valor) {
@@ -92,6 +101,9 @@ public class Directory {
         
         try {
             this.setProfundidade(dis.readInt());
+
+            buckets = new int[(int) Math.pow(2, this.profundidade)];
+            
             for(int i = 0; i < Math.pow(2, this.profundidade); i++) {
                 this.setBucket(dis.readInt(), i);
             }

@@ -17,34 +17,33 @@ public class ManagerManager {
         try { 
             this.documentFolder = documentFolder;
             this.dirManager = new DirectoryManager(this.documentFolder+"/dir.db");
-            // this.idxMaanager = INDEX MANAGER
+            this.idxManager = new IndexManager(this.documentFolder+"/idx.db");
             this.dataManager = new DataManager(this.documentFolder+"/data.db");
 
-            this.dir = new Directory(dirManager.readToFile());
+            this.updateMemoryDir();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public ManagerManager(String documentFolder, int dirProfundidade, int dataRegisterSize){
+    public ManagerManager(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize){
         try { 
             this.documentFolder = documentFolder;
             this.dirManager = new DirectoryManager(this.documentFolder+"/dir.db", dirProfundidade);
-            // this.idxMaanager = INDEX MANAGER
+            this.idxManager = new IndexManager(this.documentFolder + "/idx.db", registersInBucket);
             this.dataManager = new DataManager(this.documentFolder+"/data.db", dataRegisterSize);
-
+            
             this.dir = initDir(dirProfundidade);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
-    public ManagerManager(String documentFolder, int dirProfundidade, int dataRegisterSize, int dataNextCode){
+    public ManagerManager(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize, int dataNextCode){
         try { 
             this.documentFolder = documentFolder;
             this.dirManager = new DirectoryManager(this.documentFolder+"/dir.db", dirProfundidade);
-            // this.idxMaanager = INDEX MANAGER
+            this.idxManager = new IndexManager(this.documentFolder + "/idx.db", registersInBucket);
             this.dataManager = new DataManager(this.documentFolder+"/data.db", dataRegisterSize, dataNextCode);
 
             this.dir = initDir(dirProfundidade);
@@ -52,16 +51,13 @@ public class ManagerManager {
             e.printStackTrace();
         }
     }
-
-    public Directory initDir(int profundidade) {
+    
+    private Directory initDir(int profundidade) {
         Directory emptyDir = null;
-        try {
-            emptyDir = new Directory(profundidade);
-            dirManager.writeToFile(emptyDir.toByteArray());
-            this.saveDir();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        
+        emptyDir = new Directory(profundidade);
+        this.saveDir();
+
         return emptyDir;
     }
 
@@ -94,10 +90,10 @@ public class ManagerManager {
     }
 
     private void saveDir(){
-        try {
-            dirManager.writeToFile(dir.toByteArray());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        dirManager.writeToFile(dir.toByteArray());
+    }
+
+    private void updateMemoryDir() {
+        dir.readFromByteArray(dirManager.readFromFile());
     }
 }
