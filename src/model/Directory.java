@@ -28,7 +28,7 @@ public class Directory {
         this.buckets = new int[(int) Math.pow(2, this.profundidade)];
 
         // na inicialização, o indice criado fará referência aos buckets em ordem
-        for (int i = 0; i < profundidade; i++) {
+        for (int i = 0; i < buckets.length; i++) {
             this.buckets[i] = i; 
         }
     }

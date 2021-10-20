@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Bucket {
     protected int profundidade;
@@ -19,6 +20,11 @@ public class Bucket {
         setLength(length);
         setEmptyLength(length);
         initBucket();
+    }
+
+    public Bucket(byte[] data) {
+        initBucket();
+        this.fromByteArray(data);
     }
     
     private void initBucket() {
@@ -83,7 +89,7 @@ public class Bucket {
             new IOException(e.getCause()).printStackTrace();;
         }
         
-        return null;
+        return baos.toByteArray();
     }
     
     public void fromByteArray (byte[] bucket) {
@@ -94,7 +100,7 @@ public class Bucket {
             this.setProfundidade(dis.readInt());
             this.setLength(dis.readInt());
             this.setEmptyLength(dis.readInt());
-            for (int i = 0; i < getEmptyLength(); i++) {
+            for (int i = 0; i < (getLength()-getEmptyLength()); i++) {
                 data.put(dis.readInt(), dis.readInt());
             }
         } catch (IOException e) {
@@ -125,4 +131,14 @@ public class Bucket {
     private void setEmptyLength(int emptyLength) {
         this.emptyLength = emptyLength;
     }
+
+    @Override
+    public String toString(){
+        String aux = "Bucket => ";
+        for(Map.Entry<Integer,Integer> set : this.data.entrySet() ){
+            aux += "("+set.getKey() + ":" + set.getValue()+") ";
+        }
+        return aux;
+    }
+
 }

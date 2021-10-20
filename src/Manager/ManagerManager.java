@@ -34,6 +34,7 @@ public class ManagerManager {
             this.dataManager = new DataManager(this.documentFolder+"/data.db", dataRegisterSize);
             
             this.dir = initDir(dirProfundidade);
+            this.saveDir();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,7 +57,6 @@ public class ManagerManager {
         Directory emptyDir = null;
         
         emptyDir = new Directory(profundidade);
-        this.saveDir();
 
         return emptyDir;
     }
@@ -65,28 +65,44 @@ public class ManagerManager {
         byte[] data = null;
         int bucketAddress = dir.getBucket(dir.hashFunction(key));
         
-        ///Bucket bucket = idxManager.getBucket(bucketAddress) ou aglo do tipo
-        // int filePosition = bucket.findKey()
-        int filePosition = 2;//usado para test
+        Bucket bucket = new Bucket(0, 0);
+        bucket.fromByteArray(idxManager.getBucket(bucketAddress));
+        int filePosition = bucket.getKeyData(key);
 
-        if(filePosition > 0) { //Ou uma condicao que indique que foi encontrado
-            data = dataManager.readFromFileBody(1, filePosition);
-        }
+        System.out.println("File position: " + filePosition);
+        //TODO : Implementar leitura no arq mestre. Segue pseudo codigo abaixo
+        // if(filePosition > 0) { //Ou uma condicao que indique que foi encontrado
+        //     data = dataManager.readFromFileBody(1, filePosition);
+        // }
+
         return data;
     }
 
-    public void insertKey(int key){
+    public void insertKey(int key, int value){
+
         int bucketID = dir.hashFunction(key);
         int bucketAddress = dir.getBucket(bucketID);
-        //Bucket bucket = idxManager.getBucket(bucketAddress)
-        //int keyPosition = bucket.insertKey(key)
-        int keyPosition = 3;//test 
-
-        if(keyPosition < 0) { //Ou uma condicao que indique que o bucket ta mt cheio
-            int newBucketId = bucketID*2;
-            //int newBucketAddress = idxManager.insetBucket(newBucketId);
-            //dir.extendDir(newBucketId, newBucketAddress);
+        Bucket bucket = null;
+        try {
+            bucket = new Bucket(idxManager.getBucket(bucketAddress));
+        } catch (IndexOutOfBoundsException e) {
+            bucket = new Bucket(1, idxManager.getBucketSize());
+            bucketAddress = idxManager.insertNewBucket(bucket.toByteArray());
+            dir.setBucket(bucketAddress, bucketID);
+        } catch (Exception e){
+            e.printStackTrace();
         }
+
+        bucket.insertData(key, value);
+        byte[] data = bucket.toByteArray();
+        idxManager.updateBucket(data, bucketAddress);
+
+        //TODO: faltar levar em consideracao se bucket estourar o tamanho
+        // if(keyPosition < 0) { //Ou uma condicao que indique que o bucket ta mt cheio
+        //     int newBucketId = bucketID*2;
+        //     //int newBucketAddress = idxManager.insetBucket(newBucketId);
+        //     //dir.extendDir(newBucketId, newBucketAddress);
+        // }
     }
 
     private void saveDir(){

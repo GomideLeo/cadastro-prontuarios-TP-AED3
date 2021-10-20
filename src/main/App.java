@@ -5,50 +5,62 @@ import java.util.Scanner;
 
 import dao.*;
 import model.*;
+import manager.*;
 
 public class App {
     static Scanner s = new Scanner(System.in);
     static ProntuarioDAO pdao = new ProntuarioDAO("dados/pessoa.db");
     
     public static void main(String[] args) {
-
-        try {
-            int i = 0;
+        ManagerManager manager = new ManagerManager("dados/teste01", 2,3,200);
+        manager.insertKey(0, 150);
+        manager.insertKey(4, 50);
+        manager.insertKey(3, 50);
+        // Bucket b = new Bucket(0, 0);
+        // try {
+        //     byte[] aux = manager.findRegister(10);
+        //     // b.fromByteArray(aux);
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
+        // System.out.println(b);
+        // try {
+        //     int i = 0;
             
-            do {
-                System.out.println("#====================#\n" + "|        Menu        |\n" + "|  0. Exit           |\n"
-                        + "|  1. Create         |\n" + "|  2. Read           |\n" + "|  3. Update         |\n"
-                        + "|  4. Delete         |\n" + "|  5. Read N         |\n" + "|  6.  New File      |\n"
-                        + "#====================#\n");
+        //     do {
+        //         System.out.println("#====================#\n" + "|        Menu        |\n" + "|  0. Exit           |\n"
+        //                 + "|  1. Create         |\n" + "|  2. Read           |\n" + "|  3. Update         |\n"
+        //                 + "|  4. Delete         |\n" + "|  5. Read N         |\n" + "|  6.  New File      |\n"
+        //                 + "#====================#\n");
 
-                i = s.nextInt();
-                s.nextLine();
+        //         i = s.nextInt();
+        //         s.nextLine();
 
-                switch (i) {
-                    case 1:
-                        create();
-                        break;
-                    case 2:
-                        read();
-                        break;
-                    case 3:
-                        update();
-                        break;
-                    case 4:
-                        delete();
-                        break;
-                    case 5:
-                        readN();
-                        break;
-                    case 6:
-                        newFile();
-                        break;
-                }
-            } while (i != 0);
+        //         switch (i) {
+        //             case 1:
+        //                 create();
+        //                 break;
+        //             case 2:
+        //                 read();
+        //                 break;
+        //             case 3:
+        //                 update();
+        //                 break;
+        //             case 4:
+        //                 delete();
+        //                 break;
+        //             case 5:
+        //                 readN();
+        //                 break;
+        //             case 6:
+        //                 newFile();
+        //                 break;
+        //         }
+        //     } while (i != 0);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
     }
 
     static void create() throws Exception {

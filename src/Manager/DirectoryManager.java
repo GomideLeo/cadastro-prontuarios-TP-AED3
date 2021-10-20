@@ -19,7 +19,7 @@ public class DirectoryManager {
     public DirectoryManager(String filePath, int profundidade) throws FileNotFoundException {
         this.filePath = filePath;
         File f = new File(filePath);
-        if (!f.exists()) {
+        if (f.exists()) {
             f.delete();
         }
         writeHeader(profundidade);

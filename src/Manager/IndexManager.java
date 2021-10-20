@@ -11,7 +11,7 @@ public class IndexManager {
     protected int bucketSize;
     protected int nBuckets;
     protected int fileSize;
-    
+
     public IndexManager(String filePath) throws FileNotFoundException {
         this.filePath = filePath;
         File f = new File(filePath);
@@ -36,35 +36,60 @@ public class IndexManager {
         writeHeaderData();
     }
 
-
-    
-    public void startIndex (byte[] buckets, int nBuckets) throws IOException{
-        if (this.nBuckets > 0 ) {
+    public void startIndex(byte[] buckets, int nBuckets) throws IOException {
+        if (this.nBuckets > 0) {
             throw new IOException("O indice já possui dados, operação inválida!");
         }
-        
+
         this.nBuckets = nBuckets;
         writeToFile(buckets, headerSize);
-        
+
         writeHeaderData();
     }
 
-    public int insertNewBucket (byte[] bucket) {
+    public int insertNewBucket(byte[] bucket) {
         this.nBuckets += 1;
-        
+
         writeToFile(bucket, fileSize);
         writeHeaderData();
-        
-        return nBuckets-1;
+
+        return this.nBuckets - 1;
     }
-    
-    public void updateBucket (byte[] bucket, int pos) throws IndexOutOfBoundsException {
+
+    public void updateBucket(byte[] bucket, int pos) throws IndexOutOfBoundsException {
         if (pos > this.nBuckets) {
-            throw new IndexOutOfBoundsException("Bucket n"+pos+" ainda não existe, tente inserí-lo primeiro.");
+            throw new IndexOutOfBoundsException("Bucket n" + pos + " ainda não existe, tente inserí-lo primeiro.");
         }
         
-        writeToFile(bucket, headerSize+(pos*bucketSize));
-    } 
+        int registerSize = this.bucketSize * 8 + 12;
+        writeToFile(bucket, headerSize + (pos * registerSize));
+    }
+
+    public byte[] getBucket(int pos) throws Exception {
+        byte[] bucket = null;
+        int registerSize = this.bucketSize * 8 + 12;
+        try {
+            bucket = readFromFile(registerSize, this.headerSize + (pos * registerSize));
+        } catch (IndexOutOfBoundsException e) {
+            throw new IndexOutOfBoundsException("Bucket n" + pos + " ainda não existe, tente inserí-lo primeiro.");
+        }
+
+        return bucket;
+    }
+
+    private byte[] readFromFile(int length, int offset) throws Exception {
+        if ((offset + length) > fileSize) {
+            throw new IndexOutOfBoundsException();
+        }
+        byte[] data = new byte[length];
+
+        RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
+        arquivo.seek(offset);
+        arquivo.read(data);
+        arquivo.close();
+
+        return data;
+    }
 
     private void writeToFile(byte data[], int offset) {
         try {
@@ -77,13 +102,13 @@ public class IndexManager {
             e.printStackTrace();
         }
     }
-    
-    private void updateFileSize(RandomAccessFile arquivo) throws IOException{
+
+    private void updateFileSize(RandomAccessFile arquivo) throws IOException {
         arquivo.seek(12);
         fileSize = (int) arquivo.length();
         arquivo.writeInt(fileSize);
     }
-    
+
     private void getHeaderData() {
         try {
             RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
@@ -97,7 +122,7 @@ public class IndexManager {
             e.printStackTrace();
         }
     }
-    
+
     private void writeHeaderData() {
         try {
             RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
@@ -105,6 +130,7 @@ public class IndexManager {
             arquivo.writeInt(headerSize);
             arquivo.writeInt(bucketSize);
             arquivo.writeInt(nBuckets);
+            arquivo.writeInt(fileSize);
             updateFileSize(arquivo);
             arquivo.close();
         } catch (IOException e) {
