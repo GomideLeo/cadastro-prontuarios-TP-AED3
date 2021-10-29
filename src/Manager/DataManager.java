@@ -138,13 +138,20 @@ public class DataManager {
             e.printStackTrace();
         }
     }
+    
+    public int appendToFile(byte data[]) {
+        // obtem a posição que o registro vai ser inserido
+        int pos = (this.fileSize - headerSize)/registerSize;
 
-    public void appendToFile(byte data[]){
         writeToFile(data, this.fileSize);
+
+        return pos;
     }
 
-    public void writeToFileBody(byte data[], int offset) {
+    public int writeToFileBody(byte data[], int offset) {
         writeToFile(data, (offset * registerSize) + headerSize);
+
+        return offset;
     }
 
     private byte[] readFromFile(int len, int offset) throws Exception {

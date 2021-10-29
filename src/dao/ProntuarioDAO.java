@@ -67,19 +67,21 @@ public class ProntuarioDAO {
         return null;
     }
 
-    public void createProntuario(Prontuario prontuario) throws Exception {
+    public int createProntuario(Prontuario prontuario) throws Exception {
         int offset = this.getFirstEmpty();
 
         if (prontuario.getCodigo() == -1) {
             prontuario.setCodigo(dataManager.getNextCode());
         }
 
-        if (offset == -1)
-            dataManager.appendToFile(prontuario.toByteArray(registerSize));
+        if (offset == -1) 
+            offset = dataManager.appendToFile(prontuario.toByteArray(registerSize));
         else
             dataManager.writeToFileBody(prontuario.toByteArray(registerSize), offset);
-    }
 
+        return offset;
+    }
+    
     public boolean updateProntuario(Prontuario prontuario) {
         return updateProntuario(prontuario, 100, false);
     }
