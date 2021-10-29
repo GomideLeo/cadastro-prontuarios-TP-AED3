@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import model.Bucket;
+
 public class IndexManager {
     protected String filePath;
     protected int headerSize;
@@ -150,4 +152,10 @@ public class IndexManager {
         return this.fileSize;
     }
 
+    public void insertNBuckets(int n, int profundidade){
+        Bucket tempBucket = new Bucket(profundidade, this.bucketSize);
+        for (int i = 0; i < n; i++){
+            insertNewBucket(tempBucket.toByteArray());
+        }
+    }
 }

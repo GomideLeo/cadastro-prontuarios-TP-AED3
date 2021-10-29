@@ -4,6 +4,8 @@ import manager.*;
 import model.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ManagerManager {
     private String documentFolder;
@@ -14,11 +16,11 @@ public class ManagerManager {
     private Directory dir;
 
     public ManagerManager(String documentFolder) {
-        try { 
+        try {
             this.documentFolder = documentFolder;
-            this.dirManager = new DirectoryManager(this.documentFolder+"/dir.db");
-            this.idxManager = new IndexManager(this.documentFolder+"/idx.db");
-            this.dataManager = new DataManager(this.documentFolder+"/data.db");
+            this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db");
+            this.idxManager = new IndexManager(this.documentFolder + "/idx.db");
+            this.dataManager = new DataManager(this.documentFolder + "/data.db");
 
             this.updateMemoryDir();
         } catch (Exception e) {
@@ -26,86 +28,138 @@ public class ManagerManager {
         }
     }
 
-    public ManagerManager(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize){
-        try { 
+    public ManagerManager(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize) {
+        try {
             this.documentFolder = documentFolder;
-            this.dirManager = new DirectoryManager(this.documentFolder+"/dir.db", dirProfundidade);
+            this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db", dirProfundidade);
             this.idxManager = new IndexManager(this.documentFolder + "/idx.db", registersInBucket);
-            this.dataManager = new DataManager(this.documentFolder+"/data.db", dataRegisterSize);
-            
+            this.dataManager = new DataManager(this.documentFolder + "/data.db", dataRegisterSize);
+
             this.dir = initDir(dirProfundidade);
+            this.idxManager.insertNBuckets((int)Math.pow(dirProfundidade,2), dirProfundidade);
             this.saveDir();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public ManagerManager(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize, int dataNextCode){
-        try { 
+    public ManagerManager(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize,
+            int dataNextCode) {
+        try {
             this.documentFolder = documentFolder;
-            this.dirManager = new DirectoryManager(this.documentFolder+"/dir.db", dirProfundidade);
+            this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db", dirProfundidade);
             this.idxManager = new IndexManager(this.documentFolder + "/idx.db", registersInBucket);
-            this.dataManager = new DataManager(this.documentFolder+"/data.db", dataRegisterSize, dataNextCode);
+            this.dataManager = new DataManager(this.documentFolder + "/data.db", dataRegisterSize, dataNextCode);
 
             this.dir = initDir(dirProfundidade);
+            this.idxManager.insertNBuckets((int)Math.pow(dirProfundidade,2), dirProfundidade);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private Directory initDir(int profundidade) {
         Directory emptyDir = null;
-        
+
         emptyDir = new Directory(profundidade);
 
         return emptyDir;
     }
 
-    public byte[] findRegister(int key) throws Exception{
+    public byte[] findRegister(int key) throws Exception {
         byte[] data = null;
         int bucketAddress = dir.getBucket(dir.hashFunction(key));
-        
+
         Bucket bucket = new Bucket(0, 0);
         bucket.fromByteArray(idxManager.getBucket(bucketAddress));
         int filePosition = bucket.getKeyData(key);
 
         System.out.println("File position: " + filePosition);
-        //TODO : Implementar leitura no arq mestre. Segue pseudo codigo abaixo
+        // TODO : Implementar leitura no arq mestre. Segue pseudo codigo abaixo
         // if(filePosition > 0) { //Ou uma condicao que indique que foi encontrado
-        //     data = dataManager.readFromFileBody(1, filePosition);
+        // data = dataManager.readFromFileBody(1, filePosition);
         // }
 
         return data;
     }
 
-    public void insertKey(int key, int value){
-
+    private Bucket getBucketByKey(int key) {
         int bucketID = dir.hashFunction(key);
         int bucketAddress = dir.getBucket(bucketID);
         Bucket bucket = null;
+
         try {
             bucket = new Bucket(idxManager.getBucket(bucketAddress));
         } catch (IndexOutOfBoundsException e) {
-            bucket = new Bucket(1, idxManager.getBucketSize());
+            bucket = new Bucket(dir.getProfundidade(), idxManager.getBucketSize());
             bucketAddress = idxManager.insertNewBucket(bucket.toByteArray());
             dir.setBucket(bucketAddress, bucketID);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        return bucket;
+    }
 
-        bucket.insertData(key, value);
-        byte[] data = bucket.toByteArray();
-        idxManager.updateBucket(data, bucketAddress);
+    private void insertToBucket(Bucket bucket, int key, int value) {
+        int bucketID = dir.hashFunction(key);
+        int bucketAddress = dir.getBucket(bucketID);
 
-        //TODO: faltar levar em consideracao se bucket estourar o tamanho
+        if (bucket.getEmptyLength() > 0) {
+            bucket.insertData(key, value);
+            idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
+        } else {
+            //Como nao ha espaco vai ter q refatorar o bucket
+            //nesse caso salvo os dados que estao no buckt
+            HashMap<Integer, Integer> bucketMap = new HashMap<Integer,Integer>(bucket.getData());
+            bucketMap.put(key, value);
+
+            //Crio o novo bucket que tem a key dele = bucketAtual.profundidade ** 2 + bucketAtual.posicao
+            int newBucketId = (int) (Math.pow(bucket.getProfundidade(),2) + bucketAddress);
+            Bucket newBucket = new Bucket(bucket.getProfundidade()+1, idxManager.getBucketSize());
+            int newBucketAddress = idxManager.insertNewBucket(newBucket.toByteArray());
+
+            //Limpo bucket atual e salvo mudanca
+            bucket.clearData();
+            bucket.setProfundidade(bucket.getProfundidade()+1);
+            idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
+
+            if (bucket.getProfundidade() <= dir.getProfundidade()) {
+                // setar bucket na pos caso nao seja necessario duplicar o dir
+                dir.setBucket(newBucketAddress, newBucketId);
+            } else {
+                // duplicar dir 
+                dir.extendDir(newBucketId, newBucketAddress);
+            }
+
+            //Refatorar o bucket
+            for(Map.Entry<Integer, Integer> entry : bucketMap.entrySet()) {
+                int destination = dir.hashFunction(entry.getKey());
+                if(destination == bucketID){
+                    bucket.insertData(entry.getKey(), entry.getValue());
+                }else{
+                    newBucket.insertData(entry.getKey(), entry.getValue());
+                }
+            }
+            
+            idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
+            idxManager.updateBucket(newBucket.toByteArray(), newBucketAddress);
+        }
+    }
+
+    public void insertKey(int key, int value) {
+
+        Bucket bucket = this.getBucketByKey(key);
+        this.insertToBucket(bucket, key, value);
+
+        // TODO: faltar levar em consideracao se bucket estourar o tamanho
         // if(keyPosition < 0) { //Ou uma condicao que indique que o bucket ta mt cheio
-        //     int newBucketId = bucketID*2;
-        //     //int newBucketAddress = idxManager.insetBucket(newBucketId);
-        //     //dir.extendDir(newBucketId, newBucketAddress);
+        // int newBucketId = bucketID*2;
+        // //int newBucketAddress = idxManager.insetBucket(newBucketId);
+        // //dir.extendDir(newBucketId, newBucketAddress);
         // }
     }
 
-    private void saveDir(){
+    private void saveDir() {
         dirManager.writeToFile(dir.toByteArray());
     }
 

@@ -141,4 +141,12 @@ public class Bucket {
         return aux;
     }
 
+    public HashMap<Integer, Integer> getData(){
+        return data;
+    }
+
+    public void clearData(){
+        this.emptyLength = this.length;
+        this.data.clear();
+    }
 }
