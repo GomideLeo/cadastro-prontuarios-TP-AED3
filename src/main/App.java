@@ -13,9 +13,10 @@ public class App {
     
     public static void main(String[] args) {
         ManagerManager manager = new ManagerManager("dados/teste01", 2,3,200);
-        manager.insertKey(0, 150);
+        manager.insertKey(0, 40);
         manager.insertKey(4, 50);
-        manager.insertKey(3, 50);
+        manager.insertKey(12, 30);
+        manager.insertKey(8, 20);
         // Bucket b = new Bucket(0, 0);
         // try {
         //     byte[] aux = manager.findRegister(10);
