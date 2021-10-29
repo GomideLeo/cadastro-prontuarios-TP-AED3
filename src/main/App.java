@@ -10,58 +10,65 @@ import manager.*;
 public class App {
     static Scanner s = new Scanner(System.in);
     static ProntuarioDAO pdao = new ProntuarioDAO("dados/pessoa.db");
-    
+
     public static void main(String[] args) {
-        ManagerManager manager = new ManagerManager("dados/teste01", 2,3,200);
+        ManagerManager manager = new ManagerManager("dados/teste01", 2, 3, 200);
         manager.insertKey(0, 40);
         manager.insertKey(4, 50);
         manager.insertKey(12, 30);
         manager.insertKey(8, 20);
         // Bucket b = new Bucket(0, 0);
         // try {
-        //     byte[] aux = manager.findRegister(10);
-        //     // b.fromByteArray(aux);
+        // byte[] aux = manager.findRegister(10);
+        // // b.fromByteArray(aux);
         // } catch (Exception e) {
-        //     e.printStackTrace();
+        // e.printStackTrace();
         // }
         // System.out.println(b);
         // try {
-        //     int i = 0;
-            
-        //     do {
-        //         System.out.println("#====================#\n" + "|        Menu        |\n" + "|  0. Exit           |\n"
-        //                 + "|  1. Create         |\n" + "|  2. Read           |\n" + "|  3. Update         |\n"
-        //                 + "|  4. Delete         |\n" + "|  5. Read N         |\n" + "|  6.  New File      |\n"
-        //                 + "#====================#\n");
+        // int i = 0;
 
-        //         i = s.nextInt();
-        //         s.nextLine();
+        // menu()
+    }
 
-        //         switch (i) {
-        //             case 1:
-        //                 create();
-        //                 break;
-        //             case 2:
-        //                 read();
-        //                 break;
-        //             case 3:
-        //                 update();
-        //                 break;
-        //             case 4:
-        //                 delete();
-        //                 break;
-        //             case 5:
-        //                 readN();
-        //                 break;
-        //             case 6:
-        //                 newFile();
-        //                 break;
-        //         }
-        //     } while (i != 0);
+    static void menu() {
+        
+        try {
+            int i = 0;
 
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
+            do {
+                System.out.println("#====================#\n" + "| Menu |\n" + "| 0. Exit |\n" + "| 1. Create |\n"
+                        + "| 2. Read |\n" + "| 3. Update |\n" + "| 4. Delete |\n" + "| 5. Read N |\n"
+                        + "| 6. New File |\n" + "#====================#\n");
+
+                i = s.nextInt();
+                s.nextLine();
+
+                switch (i) {
+                case 1:
+                    create();
+                    break;
+                case 2:
+                    read();
+                    break;
+                case 3:
+                    update();
+                    break;
+                case 4:
+                    delete();
+                    break;
+                case 5:
+                    readN();
+                    break;
+                case 6:
+                    newFile();
+                    break;
+                }
+            } while (i != 0);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     static void create() throws Exception {
@@ -120,10 +127,10 @@ public class App {
         System.out.println(pdao.deleteProntuario(s.nextInt()));
         s.nextLine();
     }
-    
+
     static void readN() throws Exception {
         System.out.println("N?");
-        
+
         for (Prontuario p : pdao.readNProntuarios(s.nextInt(), 0))
             System.out.println(p);
         s.nextLine();
@@ -132,7 +139,7 @@ public class App {
     static void newFile() throws Exception {
         System.out.println("Tamanho do Registro?");
         pdao = new ProntuarioDAO("dados/pessoa.db", s.nextInt());
-        
+
         s.nextLine();
     }
 }
