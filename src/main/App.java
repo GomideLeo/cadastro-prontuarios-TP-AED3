@@ -1,6 +1,7 @@
 package main;
 
 import java.util.Date;
+import java.util.Random;
 import java.util.Scanner;
 
 import dao.*;
@@ -9,14 +10,21 @@ import manager.*;
 
 public class App {
     static Scanner s = new Scanner(System.in);
-    static ProntuarioDAO pdao = new ProntuarioDAO("dados/pessoa.db");
-
+    static ProntuarioDAO pdao = new ProntuarioDAO("dados/teste03", 3, 5, 200, 1);
+    
     public static void main(String[] args) {
-        ManagerManager manager = new ManagerManager("dados/teste01", 2, 3, 200);
-        manager.insertKey(0, 40);
-        manager.insertKey(4, 50);
-        manager.insertKey(12, 30);
-        manager.insertKey(8, 20);
+
+        try {
+            for (int i = 0; i < 160; i++) {
+                pdao.createProntuario(generateRandom());
+            }
+            for (int i = 1; i <= 160; i++) {
+                System.out.println(pdao.getProntuario(i));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // Bucket b = new Bucket(0, 0);
         // try {
         // byte[] aux = manager.findRegister(10);
@@ -31,8 +39,28 @@ public class App {
         // menu()
     }
 
+    static String generateRandomString(int len) {
+        int leftLimit = 32; // spacebar ' '
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = len;
+        Random random = new Random();
+
+        String generatedString = random.ints(leftLimit, rightLimit + 1)
+                .filter(i -> (i <= 32 || i >= 48) && (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append).toString();
+
+        return generatedString;
+    }
+
+    static Prontuario generateRandom() {
+        return new Prontuario(-1, generateRandomString((int) Math.random() * 10 + 10),
+                new Date((int) (Math.random() * 70 + 50), (int) (Math.random() * 12), (int) (Math.random() * 30 + 1)),
+                (Math.random() < 0.5 ? 'M' : 'F'), generateRandomString((int) (Math.random() * 100) + 10));
+    }
+
     static void menu() {
-        
+
         try {
             int i = 0;
 
@@ -91,11 +119,11 @@ public class App {
 
         pdao.createProntuario(p);
     }
-
+    
     static void read() {
 
         System.out.println("Codigo?");
-        System.out.println(pdao.getProntuario(s.nextInt()));
+        //System.out.println(pdao.getProntuario(s.nextInt()));
         s.nextLine();
     }
 
@@ -138,7 +166,7 @@ public class App {
 
     static void newFile() throws Exception {
         System.out.println("Tamanho do Registro?");
-        pdao = new ProntuarioDAO("dados/pessoa.db", s.nextInt());
+        // pdao = new ProntuarioDAO("dados/pessoa.db", s.nextInt());
 
         s.nextLine();
     }

@@ -7,28 +7,45 @@ import model.*;
 
 public class ProntuarioDAO {
     protected DataManager dataManager;
+    protected ManagerManager managerManager;
     protected int registerSize;
 
-    public ProntuarioDAO(String filePath) {
+    public ProntuarioDAO(String documentFolder) {
         try {
-            dataManager = new DataManager(filePath);
+            managerManager = new ManagerManager(documentFolder);
+            dataManager = new DataManager(documentFolder + "/data.db");
             registerSize = dataManager.getRegisterSize();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public ProntuarioDAO(String filePath, int registerSize) {
-        this.registerSize = registerSize;
+    public ProntuarioDAO(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize) {
+        this.registerSize = dataRegisterSize;
         try {
-            dataManager = new DataManager(filePath, registerSize);
+            managerManager = new ManagerManager(documentFolder, dirProfundidade, registersInBucket, dataRegisterSize);
+            dataManager = new DataManager(documentFolder + "/data.db", registerSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public Prontuario getProntuario(int id) {
-        return getProntuario(id, 100);
+    public ProntuarioDAO(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize,
+            int dataNextCode) {
+        this.registerSize = dataRegisterSize;
+        try {
+            managerManager = new ManagerManager(documentFolder, dirProfundidade, registersInBucket, dataRegisterSize,
+                    dataNextCode);
+            dataManager = new DataManager(documentFolder + "/data.db", dataRegisterSize, dataNextCode);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Prontuario getProntuario(int id) throws Exception {
+        //return getProntuario(id, 100);
+        
+        return new Prontuario(managerManager.findRegister(id));
     }
 
     private Prontuario getProntuario(int id, int step) {
@@ -67,21 +84,15 @@ public class ProntuarioDAO {
         return null;
     }
 
-    public int createProntuario(Prontuario prontuario) throws Exception {
-        int offset = this.getFirstEmpty();
+    public void createProntuario(Prontuario prontuario) throws Exception {
 
         if (prontuario.getCodigo() == -1) {
             prontuario.setCodigo(dataManager.getNextCode());
         }
 
-        if (offset == -1) 
-            offset = dataManager.appendToFile(prontuario.toByteArray(registerSize));
-        else
-            dataManager.writeToFileBody(prontuario.toByteArray(registerSize), offset);
-
-        return offset;
+        managerManager.insertKey(prontuario.getCodigo(), prontuario.toByteArray(registerSize));
     }
-    
+
     public boolean updateProntuario(Prontuario prontuario) {
         return updateProntuario(prontuario, 100, false);
     }
@@ -123,10 +134,6 @@ public class ProntuarioDAO {
             p[i] = new Prontuario(Arrays.copyOfRange(vet, i * registerSize, (i + 1) * registerSize));
         }
         return p;
-    }
-
-    public int getFirstEmpty() throws Exception {
-        return dataManager.getFirstEmpty();
     }
 
 }

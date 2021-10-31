@@ -1,9 +1,8 @@
 package manager;
 
-import manager.*;
 import model.*;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,12 +30,17 @@ public class ManagerManager {
     public ManagerManager(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize) {
         try {
             this.documentFolder = documentFolder;
+            File theDir = new File(documentFolder);
+            if (!theDir.exists()) {
+                theDir.mkdirs();
+            }
             this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db", dirProfundidade);
             this.idxManager = new IndexManager(this.documentFolder + "/idx.db", registersInBucket);
             this.dataManager = new DataManager(this.documentFolder + "/data.db", dataRegisterSize);
 
             this.dir = initDir(dirProfundidade);
-            this.idxManager.insertNBuckets((int)Math.pow(dirProfundidade,2), dirProfundidade);
+            this.idxManager.insertNBuckets((int) Math.pow(2, dirProfundidade), dirProfundidade);
+            
             this.saveDir();
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,12 +51,18 @@ public class ManagerManager {
             int dataNextCode) {
         try {
             this.documentFolder = documentFolder;
+            File theDir = new File(documentFolder);
+            if (!theDir.exists()) {
+                theDir.mkdirs();
+            }
             this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db", dirProfundidade);
             this.idxManager = new IndexManager(this.documentFolder + "/idx.db", registersInBucket);
             this.dataManager = new DataManager(this.documentFolder + "/data.db", dataRegisterSize, dataNextCode);
 
             this.dir = initDir(dirProfundidade);
-            this.idxManager.insertNBuckets((int)Math.pow(dirProfundidade,2), dirProfundidade);
+            this.idxManager.insertNBuckets((int) Math.pow(2, dirProfundidade), dirProfundidade);
+
+            this.saveDir();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -76,9 +86,9 @@ public class ManagerManager {
 
         System.out.println("File position: " + filePosition);
         // TODO : Implementar leitura no arq mestre. Segue pseudo codigo abaixo
-        // if(filePosition > 0) { //Ou uma condicao que indique que foi encontrado
-        // data = dataManager.readFromFileBody(1, filePosition);
-        // }
+        if (filePosition >= 0) { // Ou uma condicao que indique que foi encontrado
+            data = dataManager.readFromFileBody(1, filePosition);
+        }
 
         return data;
     }
@@ -94,6 +104,8 @@ public class ManagerManager {
             bucket = new Bucket(dir.getProfundidade(), idxManager.getBucketSize());
             bucketAddress = idxManager.insertNewBucket(bucket.toByteArray());
             dir.setBucket(bucketAddress, bucketID);
+
+            this.saveDir();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -108,48 +120,58 @@ public class ManagerManager {
             bucket.insertData(key, value);
             idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
         } else {
-            //Como nao ha espaco vai ter q refatorar o bucket
-            //nesse caso salvo os dados que estao no buckt
-            HashMap<Integer, Integer> bucketMap = new HashMap<Integer,Integer>(bucket.getData());
+            // Como nao ha espaco vai ter q refatorar o bucket
+            // nesse caso salvo os dados que estao no buckt
+            HashMap<Integer, Integer> bucketMap = new HashMap<Integer, Integer>(bucket.getData());
             bucketMap.put(key, value);
 
-            //Crio o novo bucket que tem a key dele = bucketAtual.profundidade ** 2 + bucketAtual.posicao
-            int newBucketId = (int) (Math.pow(bucket.getProfundidade(),2) + bucketAddress);
-            Bucket newBucket = new Bucket(bucket.getProfundidade()+1, idxManager.getBucketSize());
+            // Crio o novo bucket que tem a key dele = 2 ** bucketAtual.profundidade +
+            // bucketAtual.posicao
+            int bucketDirSize = (int) (Math.pow(2, bucket.getProfundidade()));
+            int newBucketId = (bucketDirSize + (bucketID % bucketDirSize));
+            Bucket newBucket = new Bucket(bucket.getProfundidade() + 1, idxManager.getBucketSize());
             int newBucketAddress = idxManager.insertNewBucket(newBucket.toByteArray());
-
-            //Limpo bucket atual e salvo mudanca
+            
+            // Limpo bucket atual e salvo mudanca
             bucket.clearData();
-            bucket.setProfundidade(bucket.getProfundidade()+1);
+            bucket.setProfundidade(bucket.getProfundidade() + 1);
             idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
-
+            
             if (bucket.getProfundidade() <= dir.getProfundidade()) {
                 // setar bucket na pos caso nao seja necessario duplicar o dir
                 dir.setBucket(newBucketAddress, newBucketId);
             } else {
-                // duplicar dir 
+                // duplicar dir
                 dir.extendDir(newBucketId, newBucketAddress);
             }
 
-            //Refatorar o bucket
-            for(Map.Entry<Integer, Integer> entry : bucketMap.entrySet()) {
+            // Refatorar o bucket
+            for (Map.Entry<Integer, Integer> entry : bucketMap.entrySet()) {
                 int destination = dir.hashFunction(entry.getKey());
-                if(destination == bucketID){
+                if (destination == bucketID) {
                     bucket.insertData(entry.getKey(), entry.getValue());
-                }else{
+                } else {
                     newBucket.insertData(entry.getKey(), entry.getValue());
                 }
             }
             
             idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
             idxManager.updateBucket(newBucket.toByteArray(), newBucketAddress);
+            this.saveDir();
         }
     }
 
-    public void insertKey(int key, int value) {
+    public void insertKey(int key, byte[] object) throws Exception {
+        int offset = -1;
+        offset = dataManager.getFirstEmpty();
+
+        if (offset == -1) {
+            offset = dataManager.appendToFile(object);
+        } else
+            dataManager.writeToFileBody(object, offset);
 
         Bucket bucket = this.getBucketByKey(key);
-        this.insertToBucket(bucket, key, value);
+        this.insertToBucket(bucket, key, offset);
 
         // TODO: faltar levar em consideracao se bucket estourar o tamanho
         // if(keyPosition < 0) { //Ou uma condicao que indique que o bucket ta mt cheio
