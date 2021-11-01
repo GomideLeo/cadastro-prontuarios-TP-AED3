@@ -24,7 +24,7 @@ public class IndexManager {
         }
     }
 
-    public IndexManager(String filePath, int bucketSize) throws FileNotFoundException {
+    public IndexManager(String filePath, int bucketSize) {
         this.filePath = filePath;
         this.headerSize = 16;
         this.bucketSize = bucketSize;

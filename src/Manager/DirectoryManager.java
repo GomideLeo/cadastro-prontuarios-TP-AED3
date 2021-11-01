@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class DirectoryManager {
     private String filePath;
-    
+
     public DirectoryManager(String filePath) throws FileNotFoundException {
         this.filePath = filePath;
         File f = new File(filePath);
@@ -15,8 +15,8 @@ public class DirectoryManager {
             throw new FileNotFoundException();
         }
     }
-    
-    public DirectoryManager(String filePath, int profundidade) throws FileNotFoundException {
+
+    public DirectoryManager(String filePath, int profundidade) {
         this.filePath = filePath;
         File f = new File(filePath);
         if (f.exists()) {
@@ -25,7 +25,7 @@ public class DirectoryManager {
         writeHeader(profundidade);
     }
 
-    public void writeHeader(int profundidade) throws FileNotFoundException {
+    public void writeHeader(int profundidade) {
         try {
             RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
             arquivo.seek(0);

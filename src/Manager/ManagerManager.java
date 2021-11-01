@@ -2,7 +2,10 @@ package manager;
 
 import model.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,36 +17,28 @@ public class ManagerManager {
 
     private Directory dir = new Directory();
 
-    public ManagerManager(String documentFolder) {
-        try {
-            this.documentFolder = documentFolder;
-            this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db");
-            this.idxManager = new IndexManager(this.documentFolder + "/idx.db");
-            this.dataManager = new DataManager(this.documentFolder + "/data.db");
+    public ManagerManager(String documentFolder) throws FileNotFoundException {
+        this.documentFolder = documentFolder;
+        this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db");
+        this.idxManager = new IndexManager(this.documentFolder + "/idx.db");
+        this.dataManager = new DataManager(this.documentFolder + "/data.db");
 
-            this.updateMemoryDir();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.updateMemoryDir();
     }
 
     public ManagerManager(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize) {
-        try {
-            this.documentFolder = documentFolder;
-            File theDir = new File(documentFolder);
-            if (!theDir.exists()) {
-                theDir.mkdirs();
-            }
-            this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db", dirProfundidade);
-            this.idxManager = new IndexManager(this.documentFolder + "/idx.db", registersInBucket);
-            this.dataManager = new DataManager(this.documentFolder + "/data.db", dataRegisterSize);
-
-            this.dir = initDir(dirProfundidade);
-
-            this.saveDir();
-        } catch (Exception e) {
-            e.printStackTrace();
+        this.documentFolder = documentFolder;
+        File theDir = new File(documentFolder);
+        if (!theDir.exists()) {
+            theDir.mkdirs();
         }
+        this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db", dirProfundidade);
+        this.idxManager = new IndexManager(this.documentFolder + "/idx.db", registersInBucket);
+        this.dataManager = new DataManager(this.documentFolder + "/data.db", dataRegisterSize);
+
+        this.dir = initDir(dirProfundidade);
+
+        this.saveDir();
     }
 
     public ManagerManager(String documentFolder, int dirProfundidade, int registersInBucket, int dataRegisterSize,

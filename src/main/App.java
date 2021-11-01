@@ -1,42 +1,34 @@
 package main;
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 
 import dao.*;
 import model.*;
-import manager.*;
 
 public class App {
     static Scanner s = new Scanner(System.in);
-    static ProntuarioDAO pdao = new ProntuarioDAO("dados/teste03", 3, 5, 200, 1);
+    static ProntuarioDAO pdao;
 
     public static void main(String[] args) {
 
-        try {
-            for (int i = 0; i < 200; i++) {
-                pdao.createProntuario(generateRandom());
-            }
-            for (int i = 1; i <= 200; i++) {
-                System.out.println(pdao.getProntuario(i));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        // Bucket b = new Bucket(0, 0);
         // try {
-        // byte[] aux = manager.findRegister(10);
-        // // b.fromByteArray(aux);
+        // for (int i = 0; i < 200; i++) {
+        // pdao.createProntuario(generateRandom());
+        // }
+
+        // Prontuario[] ps = pdao.readNProntuarios(200, 0);
+        // for (Prontuario p : ps) {
+        // System.out.println(p);
+        // }
+
         // } catch (Exception e) {
         // e.printStackTrace();
         // }
-        // System.out.println(b);
-        // try {
-        // int i = 0;
 
-        // menu()
+        menu();
     }
 
     static String generateRandomString(int len) {
@@ -53,6 +45,7 @@ public class App {
         return generatedString;
     }
 
+    @SuppressWarnings("deprecation")
     static Prontuario generateRandom() {
         return new Prontuario(-1, generateRandomString((int) Math.random() * 10 + 10),
                 new Date((int) (Math.random() * 70 + 50), (int) (Math.random() * 12), (int) (Math.random() * 30 + 1)),
@@ -62,12 +55,15 @@ public class App {
     static void menu() {
 
         try {
+            openFile();
+
             int i = 0;
 
             do {
-                System.out.println("#====================#\n" + "| Menu |\n" + "| 0. Exit |\n" + "| 1. Create |\n"
-                        + "| 2. Read |\n" + "| 3. Update |\n" + "| 4. Delete |\n" + "| 5. Read N |\n"
-                        + "| 6. New File |\n" + "#====================#\n");
+                System.out.println("#================#\n" + "|      Menu      |\n" + "| 0. Exit        |\n"
+                        + "| 1. Create      |\n" + "| 2. Read        |\n" + "| 3. Update      |\n"
+                        + "| 4. Delete      |\n" + "| 5. Read N      |\n" + "| 6. New File    |\n"
+                        + "| 7. Open File   |\n" + "#================#\n");
 
                 i = s.nextInt();
                 s.nextLine();
@@ -91,6 +87,9 @@ public class App {
                 case 6:
                     newFile();
                     break;
+                case 7:
+                    openFile();
+                    break;
                 }
             } while (i != 0);
 
@@ -99,37 +98,10 @@ public class App {
         }
     }
 
+    @SuppressWarnings("deprecation")
     static void create() throws Exception {
 
-        Prontuario p = new Prontuario();
-
-        System.out.println("Nome?");
-        p.setNome(s.nextLine());
-
-        System.out.println("Nascimento? YYYY-MM-DD");
-        String[] nasc = s.nextLine().split("-");
-        p.setDataNascimento(
-                new Date(Integer.parseInt(nasc[0]) - 1900, Integer.parseInt(nasc[1]), Integer.parseInt(nasc[2])));
-
-        System.out.println("Sexo?");
-        p.setSexo(s.nextLine().charAt(0));
-
-        System.out.println("Anotações?");
-        p.setAnotacoes(s.nextLine());
-
-        pdao.createProntuario(p);
-    }
-
-    static void read() {
-
-        System.out.println("Codigo?");
-        // System.out.println(pdao.getProntuario(s.nextInt()));
-        s.nextLine();
-    }
-
-    static void update() throws Exception {
-
-        System.out.println("Codigo?");
+        System.out.println("Codigo? (-1 para autocompletar)");
         Prontuario p = new Prontuario(s.nextInt());
         s.nextLine();
 
@@ -147,7 +119,47 @@ public class App {
         System.out.println("Anotações?");
         p.setAnotacoes(s.nextLine());
 
-        System.out.println(pdao.updateProntuario(p));
+        System.out.println(pdao.createProntuario(p));
+    }
+
+    static void read() throws Exception {
+
+        System.out.println("Codigo?");
+        System.out.println(pdao.getProntuario(s.nextInt()));
+        s.nextLine();
+    }
+
+    @SuppressWarnings("deprecation")
+    static void update() throws Exception {
+
+        System.out.println("Codigo?");
+        Prontuario p = new Prontuario(s.nextInt());
+        s.nextLine();
+
+        System.out.print("\nAntigo prontuário: ");
+        p = pdao.getProntuario(p.getCodigo());
+
+        if (p != null) {
+            System.out.println(pdao.getProntuario(p.getCodigo()));
+
+            System.out.println("\nNome?");
+            p.setNome(s.nextLine());
+
+            System.out.println("Nascimento? YYYY-MM-DD");
+            String[] nasc = s.nextLine().split("-");
+            p.setDataNascimento(
+                    new Date(Integer.parseInt(nasc[0]) - 1900, Integer.parseInt(nasc[1]), Integer.parseInt(nasc[2])));
+
+            System.out.println("Sexo?");
+            p.setSexo(s.nextLine().charAt(0));
+
+            System.out.println("Anotações?");
+            p.setAnotacoes(s.nextLine());
+
+            System.out.println(pdao.updateProntuario(p));
+        } else {
+            System.out.println("\n Prontuário não encontrado!");
+        }
     }
 
     static void delete() {
@@ -164,10 +176,40 @@ public class App {
         s.nextLine();
     }
 
-    static void newFile() throws Exception {
-        System.out.println("Tamanho do Registro?");
-        // pdao = new ProntuarioDAO("dados/pessoa.db", s.nextInt());
-
+    static void newFile(String documentFolder) {
+        System.out.println("Profundidade inicial do diretório");
+        int dirProfundidade = s.nextInt();
         s.nextLine();
+
+        System.out.println("Registros por Bucket?");
+        int registersInBucket = s.nextInt();
+        s.nextLine();
+
+        System.out.println("Tamanho do Registro?");
+        int dataRegisterSize = s.nextInt();
+        s.nextLine();
+
+        System.out.println("Primeiro código?");
+        int dataNextCode = s.nextInt();
+        s.nextLine();
+
+        pdao = new ProntuarioDAO(documentFolder, dirProfundidade, registersInBucket, dataRegisterSize, dataNextCode);
+    }
+
+    static void newFile() {
+        System.out.println("Caminho para o arquivo?");
+        String documentFolder = "dados/" + s.nextLine();
+
+        newFile(documentFolder);
+    }
+
+    static void openFile() {
+        System.out.println("Caminho para o arquivo?");
+        String documentFolder = "dados/" + s.nextLine();
+        try {
+            pdao = new ProntuarioDAO(documentFolder);
+        } catch (FileNotFoundException e) {
+            newFile(documentFolder);
+        }
     }
 }
