@@ -32,9 +32,14 @@ public class Directory {
             this.buckets[i] = i; 
         }
     }
-
-    public int hashFunction(int valor) {
-        return valor % (int) Math.pow(2, this.profundidade);
+    
+    
+    public int hashFunction(int valor, int prof) {
+        return valor % (int) Math.pow(2, prof);
+    }
+    
+    public int hashFunction (int valor) {
+        return hashFunction(valor, this.profundidade);
     }
 
     private void extendDir(){

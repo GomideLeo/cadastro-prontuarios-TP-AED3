@@ -15,16 +15,16 @@ public class App {
     public static void main(String[] args) {
 
         try {
-            for (int i = 0; i < 160; i++) {
+            for (int i = 0; i < 200; i++) {
                 pdao.createProntuario(generateRandom());
             }
-            for (int i = 1; i <= 160; i++) {
+            for (int i = 1; i <= 200; i++) {
                 System.out.println(pdao.getProntuario(i));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        
         // Bucket b = new Bucket(0, 0);
         // try {
         // byte[] aux = manager.findRegister(10);
