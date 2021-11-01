@@ -134,19 +134,15 @@ public class DataManager {
         writeHeaderData();
     }
 
-    private void writeToFile(byte data[], int offset) {
-        try {
-            RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
-            arquivo.seek(offset);
-            arquivo.write(data);
-            arquivo.close();
-            updateFileSize();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void writeToFile(byte data[], int offset) throws IOException {
+        RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
+        arquivo.seek(offset);
+        arquivo.write(data);
+        arquivo.close();
+        updateFileSize();
     }
 
-    public int appendToFile(byte data[]) {
+    public int appendToFile(byte data[]) throws IOException {
         // obtem a posição que o registro vai ser inserido
         int pos = (this.fileSize - headerSize) / registerSize;
 
@@ -155,7 +151,7 @@ public class DataManager {
         return pos;
     }
 
-    public int writeToFileBody(byte data[], int offset) {
+    public int writeToFileBody(byte data[], int offset) throws IOException {
         writeToFile(data, (offset * registerSize) + headerSize);
 
         return offset;

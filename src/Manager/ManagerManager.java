@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -207,8 +208,14 @@ public class ManagerManager {
 
         if (offset == -1) {
             offset = dataManager.appendToFile(object);
-        } else
-            dataManager.writeToFileBody(object, offset);
+        } else {
+            try {
+                dataManager.writeToFileBody(object, offset);
+            } catch (IOException e) {
+                dataManager.setFirstEmpty(offset);
+                throw e;
+            }
+        }
 
         Bucket bucket = this.getBucketByKey(key);
         this.insertToBucket(bucket, key, offset);
@@ -228,7 +235,7 @@ public class ManagerManager {
         idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
     }
 
-    public int updateObject(int key, byte[] object) {
+    public int updateObject(int key, byte[] object) throws IOException {
         int objPosition = getDataPosition(key);
 
         if (objPosition >= 0) {

@@ -1,6 +1,7 @@
 package dao;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 
 import manager.*;
@@ -56,7 +57,7 @@ public class ProntuarioDAO {
         return prontuario.getCodigo();
     }
 
-    public boolean updateProntuario(Prontuario prontuario) {
+    public boolean updateProntuario(Prontuario prontuario) throws IndexOutOfBoundsException, IOException {
         return managerManager.updateObject(prontuario.getCodigo(), prontuario.toByteArray(registerSize)) >= 0 ? true
                 : false;
     }
