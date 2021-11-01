@@ -84,8 +84,7 @@ public class ManagerManager {
         int filePosition = bucket.getKeyData(key);
 
         System.out.println("File position: " + filePosition);
-        // TODO : Implementar leitura no arq mestre. Segue pseudo codigo abaixo
-        if (filePosition >= 0) { // Ou uma condicao que indique que foi encontrado
+        if (filePosition >= 0) {
             data = dataManager.readFromFileBody(1, filePosition);
         }
 
@@ -196,13 +195,6 @@ public class ManagerManager {
 
         Bucket bucket = this.getBucketByKey(key);
         this.insertToBucket(bucket, key, offset);
-
-        // TODO: faltar levar em consideracao se bucket estourar o tamanho
-        // if(keyPosition < 0) { //Ou uma condicao que indique que o bucket ta mt cheio
-        // int newBucketId = bucketID*2;
-        // //int newBucketAddress = idxManager.insetBucket(newBucketId);
-        // //dir.extendDir(newBucketId, newBucketAddress);
-        // }
     }
 
     private void saveDir() {
