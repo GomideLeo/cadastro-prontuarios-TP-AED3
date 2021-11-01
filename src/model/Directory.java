@@ -73,6 +73,24 @@ public class Directory {
         return this.buckets[posicao];
     }
 
+    /**
+     * Obtem o indice de um bucket de endereço 'address' no diretório, começando em
+     * 'start' (-1 caso não encontre)
+     */
+    public int findIndexOfBucket(int address, int start) {
+        for (int i = start; i < buckets.length; i++) {
+            if (buckets[i] == address) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public int findIndexOfBucket(int address) {
+        return findIndexOfBucket(address, 0);
+    }
+
     @Override
     public String toString() {
         String aux = "";
