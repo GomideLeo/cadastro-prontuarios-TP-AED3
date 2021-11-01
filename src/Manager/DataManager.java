@@ -1,6 +1,8 @@
 package manager;
 
 import java.io.RandomAccessFile;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,6 +13,7 @@ public class DataManager {
     protected int headerSize;
     protected int registerSize;
     protected int nextCode;
+    protected int firstEmpty;
     protected int fileSize;
 
     private void writeNextCode() {
@@ -27,7 +30,7 @@ public class DataManager {
     private void updateFileSize() {
         try {
             RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
-            arquivo.seek(12);
+            arquivo.seek(16);
             fileSize = (int) arquivo.length();
             arquivo.writeInt(fileSize);
             arquivo.close();
@@ -65,6 +68,7 @@ public class DataManager {
             headerSize = arquivo.readInt();
             registerSize = arquivo.readInt();
             nextCode = arquivo.readInt();
+            firstEmpty = arquivo.readInt();
             fileSize = arquivo.readInt();
             arquivo.close();
         } catch (IOException e) {
@@ -79,6 +83,7 @@ public class DataManager {
             arquivo.writeInt(headerSize);
             arquivo.writeInt(registerSize);
             arquivo.writeInt(nextCode);
+            arquivo.writeInt(firstEmpty);
             arquivo.writeInt(fileSize);
             arquivo.close();
             updateFileSize();
@@ -100,8 +105,9 @@ public class DataManager {
     public DataManager(String filePath, int registerSize) {
         this.filePath = filePath;
         this.registerSize = registerSize;
-        this.headerSize = 16;
+        this.headerSize = 20;
         this.nextCode = 1;
+        this.firstEmpty = -1;
         this.fileSize = this.headerSize;
 
         File f = new File(filePath);
@@ -115,8 +121,9 @@ public class DataManager {
     public DataManager(String filePath, int registerSize, int nextCode) {
         this.filePath = filePath;
         this.registerSize = registerSize;
-        this.headerSize = 16;
+        this.headerSize = 20;
         this.nextCode = nextCode;
+        this.firstEmpty = -1;
         this.fileSize = this.headerSize;
 
         File f = new File(filePath);
@@ -126,7 +133,7 @@ public class DataManager {
 
         writeHeaderData();
     }
-    
+
     private void writeToFile(byte data[], int offset) {
         try {
             RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
@@ -173,17 +180,31 @@ public class DataManager {
         return readFromFile(len * registerSize, (offset * registerSize) + headerSize);
     }
 
-    public int getFirstEmpty() throws Exception {
-        RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
-        for (int i = 0; (i * registerSize + headerSize) < fileSize; i++) {
-            arquivo.seek((i * registerSize) + headerSize);
-            if (arquivo.readChar() == '*') {
-                arquivo.close();
-                return i;
-            }
+    public int getFirstEmpty() {
+        return this.firstEmpty;
+    }
+
+    public void setFirstEmpty(int firstEmpty) {
+        this.firstEmpty = firstEmpty;
+        writeHeaderData();
+    }
+
+    public int updateFirstEmpty() throws Exception {
+        int firstEmpty = getFirstEmpty();
+
+        if (firstEmpty != -1) {
+            // lê o próximo vazio da pilha
+            byte[] nextEmpty = readFromFile(4, (firstEmpty * registerSize) + headerSize + 2);
+
+            ByteArrayInputStream bais = new ByteArrayInputStream(nextEmpty);
+            DataInputStream dis = new DataInputStream(bais);
+
+            int next = dis.readInt();
+
+            setFirstEmpty(next);
         }
-        arquivo.close();
-        return -1;
+
+        return firstEmpty;
     }
 
 }

@@ -16,7 +16,6 @@ public class Prontuario {
     protected char sexo;
     protected String anotacoes;
 
-
     public int getCodigo() {
         return this.codigo;
     }
@@ -60,7 +59,7 @@ public class Prontuario {
     public void setAnotacoes(String anotacoes) {
         this.anotacoes = anotacoes;
     }
-    
+
     public Prontuario() {
         this.codigo = -1;
         this.nome = "";
@@ -68,7 +67,7 @@ public class Prontuario {
         this.sexo = '\0';
         this.anotacoes = "";
     }
-    
+
     public Prontuario(byte[] v) {
         readFromByteArray(v);
     }
@@ -88,25 +87,27 @@ public class Prontuario {
         this.sexo = sexo;
         this.anotacoes = anotacoes;
     }
-    
+
     @Override
     public String toString() {
         SimpleDateFormat dFormat = new SimpleDateFormat("yyyy-MM-dd");
-        
-        return "\nCódigo: " + codigo +
-               "\nNome: " + nome +
-               "\nData de Nascimento: " + dFormat.format(dataNascimento) +
-               "\nSexo: " + sexo +
-               "\nAnotações: " + anotacoes;
+        if (codigo >= 0) {
+            return "\nCódigo: " + codigo + "\nNome: " + nome + "\nData de Nascimento: " + dFormat.format(dataNascimento)
+                    + "\nSexo: " + sexo + "\nAnotações: " + anotacoes;
+        } else {
+            return null;
+        }
     }
 
-    public byte[] toByteArray(int registerSize, boolean delete) throws IndexOutOfBoundsException {
+    public byte[] toByteArray(int registerSize, boolean delete, int nextToDelete) throws IndexOutOfBoundsException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
         try {
             dos.writeChar(delete ? '*' : '\0');
-            dos.writeInt(this.getCodigo());
+            // caso o registro estiver marcado para deleção, escreve a posição do próximo a
+            // deletar no lugar do seu ID
+            dos.writeInt(delete ? nextToDelete : this.getCodigo());
             dos.writeUTF(this.getNome());
             dos.writeLong(this.getDataNascimento().getTime());
             dos.writeChar(this.getSexo());
@@ -132,14 +133,18 @@ public class Prontuario {
         return baos.toByteArray();
     }
 
+    public byte[] toByteArray(int registerSize, boolean delete) throws IndexOutOfBoundsException {
+        return toByteArray(registerSize, delete, -1);
+    }
+
     public byte[] toByteArray(int registerSize) throws IndexOutOfBoundsException {
         return toByteArray(registerSize, false);
     }
-    
+
     public void readFromByteArray(byte[] v) {
         ByteArrayInputStream bais = new ByteArrayInputStream(v);
         DataInputStream dis = new DataInputStream(bais);
-        
+
         try {
             if (dis.readChar() != '*') {
                 this.setCodigo(dis.readInt());
@@ -148,6 +153,8 @@ public class Prontuario {
                 this.setDataNascimento(date);
                 this.setSexo(dis.readChar());
                 this.setAnotacoes(dis.readUTF());
+            } else {
+                this.setCodigo(-1);
             }
         } catch (IOException e) {
             e.printStackTrace();
