@@ -12,7 +12,7 @@ public class ManagerManager {
     private DirectoryManager dirManager;
     private IndexManager idxManager;
 
-    private Directory dir;
+    private Directory dir = new Directory();
 
     public ManagerManager(String documentFolder) {
         try {
@@ -79,16 +79,27 @@ public class ManagerManager {
         byte[] data = null;
         int bucketAddress = dir.getBucket(dir.hashFunction(key));
 
-        Bucket bucket = new Bucket(0, 0);
-        bucket.fromByteArray(idxManager.getBucket(bucketAddress));
+        Bucket bucket = new Bucket(idxManager.getBucket(bucketAddress));
+
         int filePosition = bucket.getKeyData(key);
 
-        System.out.println("File position: " + filePosition);
         if (filePosition >= 0) {
             data = dataManager.readFromFileBody(1, filePosition);
         }
 
         return data;
+    }
+
+    public int getNextCode() {
+        return dataManager.getNextCode();
+    }
+
+    public int getRegisterSize() {
+        return dataManager.getRegisterSize();
+    }
+
+    public byte[] readFromFileBody(int len, int offset) throws Exception {
+        return dataManager.readFromFileBody(len, offset);
     }
 
     private Bucket getBucketByKey(int key) {
@@ -171,10 +182,21 @@ public class ManagerManager {
                 int destinationIndex = java.util.Arrays.binarySearch(possibleBucketIds, destination);
 
                 if (destinationIndex != -1) {
-                    if (destinationIndex % 2 == 0)
-                        bucket.insertData(entry.getKey(), entry.getValue());
-                    else
-                        newBucket.insertData(entry.getKey(), entry.getValue());
+                    if (destinationIndex % 2 == 0) {
+                        try {
+                            bucket.insertData(entry.getKey(), entry.getValue());
+                        } catch (IndexOutOfBoundsException e) {
+                            insertToBucket(bucket, entry.getKey(), entry.getValue());
+                            ;
+                        }
+                    } else {
+                        try {
+                            newBucket.insertData(entry.getKey(), entry.getValue());
+                        } catch (IndexOutOfBoundsException e) {
+                            insertToBucket(newBucket, entry.getKey(), entry.getValue());
+                        }
+                    }
+
                 }
             }
 
@@ -186,7 +208,7 @@ public class ManagerManager {
 
     public void insertKey(int key, byte[] object) throws Exception {
         int offset = -1;
-        offset = dataManager.getFirstEmpty();
+        offset = dataManager.updateFirstEmpty();
 
         if (offset == -1) {
             offset = dataManager.appendToFile(object);
@@ -195,6 +217,50 @@ public class ManagerManager {
 
         Bucket bucket = this.getBucketByKey(key);
         this.insertToBucket(bucket, key, offset);
+    }
+
+    private int getDataPosition(int key) {
+        Bucket bucket = this.getBucketByKey(key);
+        return bucket.getKeyData(key);
+    }
+
+    private void removeFromBucket(int key) {
+        int bucketID = dir.hashFunction(key);
+        int bucketAddress = dir.getBucket(bucketID);
+        Bucket bucket = this.getBucketByKey(key);
+
+        bucket.removeData(key);
+        idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
+    }
+
+    public int updateObject(int key, byte[] object) {
+        int objPosition = getDataPosition(key);
+
+        if (objPosition >= 0) {
+            dataManager.writeToFileBody(object, objPosition);
+        }
+
+        return objPosition;
+    }
+
+    public boolean deleteObject(int key) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+
+        dos.writeChar('*');
+        dos.writeInt(dataManager.getFirstEmpty());
+
+        int objPosition = updateObject(key, baos.toByteArray());
+
+        if (objPosition >= 0) {
+            dataManager.setFirstEmpty(objPosition);
+
+            removeFromBucket(key);
+
+            return true;
+        }
+
+        return false;
     }
 
     private void saveDir() {
