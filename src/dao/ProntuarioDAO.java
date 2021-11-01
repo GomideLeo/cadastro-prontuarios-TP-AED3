@@ -43,9 +43,11 @@ public class ProntuarioDAO {
     }
 
     public Prontuario getProntuario(int id) throws Exception {
-        //return getProntuario(id, 100);
-        
         return new Prontuario(managerManager.findRegister(id));
+    }
+    
+    public Prontuario getProntuarioWOIndex(int id) {
+        return getProntuario(id, 100);
     }
 
     private Prontuario getProntuario(int id, int step) {

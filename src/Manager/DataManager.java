@@ -37,7 +37,7 @@ public class DataManager {
     }
 
     public int getNextCode() {
-        setNextCode(nextCode+1);
+        setNextCode(nextCode + 1);
         return nextCode - 1;
     }
 
@@ -138,10 +138,10 @@ public class DataManager {
             e.printStackTrace();
         }
     }
-    
+
     public int appendToFile(byte data[]) {
         // obtem a posição que o registro vai ser inserido
-        int pos = (this.fileSize - headerSize)/registerSize;
+        int pos = (this.fileSize - headerSize) / registerSize;
 
         writeToFile(data, this.fileSize);
 
@@ -175,8 +175,8 @@ public class DataManager {
 
     public int getFirstEmpty() throws Exception {
         RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
-        for (int i = 0; (i*registerSize + headerSize) < fileSize; i++) {
-            arquivo.seek((i*registerSize) + headerSize);
+        for (int i = 0; (i * registerSize + headerSize) < fileSize; i++) {
+            arquivo.seek((i * registerSize) + headerSize);
             if (arquivo.readChar() == '*') {
                 arquivo.close();
                 return i;

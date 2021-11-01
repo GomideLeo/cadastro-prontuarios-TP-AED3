@@ -11,7 +11,7 @@ import manager.*;
 public class App {
     static Scanner s = new Scanner(System.in);
     static ProntuarioDAO pdao = new ProntuarioDAO("dados/teste03", 3, 5, 200, 1);
-    
+
     public static void main(String[] args) {
 
         try {
@@ -119,11 +119,11 @@ public class App {
 
         pdao.createProntuario(p);
     }
-    
+
     static void read() {
 
         System.out.println("Codigo?");
-        //System.out.println(pdao.getProntuario(s.nextInt()));
+        // System.out.println(pdao.getProntuario(s.nextInt()));
         s.nextLine();
     }
 

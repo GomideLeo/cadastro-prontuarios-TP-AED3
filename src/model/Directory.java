@@ -10,17 +10,17 @@ public class Directory {
     private int profundidade;
     private int buckets[];
 
-    public Directory(){
+    public Directory() {
         this.profundidade = 3;
         initDir();
     }
 
-    public Directory(int profundidade){
+    public Directory(int profundidade) {
         this.profundidade = profundidade;
         initDir();
     }
-    
-    public Directory(byte[] data){
+
+    public Directory(byte[] data) {
         this.readFromByteArray(data);
     }
 
@@ -29,26 +29,25 @@ public class Directory {
 
         // na inicialização, o indice criado fará referência aos buckets em ordem
         for (int i = 0; i < buckets.length; i++) {
-            this.buckets[i] = i; 
+            this.buckets[i] = i;
         }
     }
-    
-    
+
     public int hashFunction(int valor, int prof) {
         return valor % (int) Math.pow(2, prof);
     }
-    
-    public int hashFunction (int valor) {
+
+    public int hashFunction(int valor) {
         return hashFunction(valor, this.profundidade);
     }
 
-    private void extendDir(){
+    private void extendDir() {
         int n = this.buckets.length;
         this.profundidade++;
         int newBuckets[] = new int[n * 2];
 
-        for (int i = 0; i < n; i++ ){
-            newBuckets[i] = newBuckets[n+i] = this.buckets[i];
+        for (int i = 0; i < n; i++) {
+            newBuckets[i] = newBuckets[n + i] = this.buckets[i];
         }
         this.buckets = newBuckets;
     }
@@ -58,27 +57,27 @@ public class Directory {
         this.buckets[newBucket] = address;
     }
 
-    public void setProfundidade(int profundidade){
+    public void setProfundidade(int profundidade) {
         this.profundidade = profundidade;
     }
 
-    public int getProfundidade(){
+    public int getProfundidade() {
         return this.profundidade;
     }
 
-    public void setBucket(int bucketAddress, int posicao){
+    public void setBucket(int bucketAddress, int posicao) {
         this.buckets[posicao] = bucketAddress;
     }
 
-    public int getBucket(int posicao){
+    public int getBucket(int posicao) {
         return this.buckets[posicao];
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String aux = "";
-        for(int i : this.buckets){
-            aux +=(i +" ");
+        for (int i : this.buckets) {
+            aux += (i + " ");
         }
         aux += "\n";
         return aux;
@@ -90,7 +89,7 @@ public class Directory {
 
         try {
             dos.writeInt(this.getProfundidade());
-            for(int bucket : this.buckets){ 
+            for (int bucket : this.buckets) {
                 dos.writeInt(bucket);
             }
         } catch (IOException e) {
@@ -103,13 +102,13 @@ public class Directory {
     public void readFromByteArray(byte[] v) {
         ByteArrayInputStream bais = new ByteArrayInputStream(v);
         DataInputStream dis = new DataInputStream(bais);
-        
+
         try {
             this.setProfundidade(dis.readInt());
 
             buckets = new int[(int) Math.pow(2, this.profundidade)];
-            
-            for(int i = 0; i < Math.pow(2, this.profundidade); i++) {
+
+            for (int i = 0; i < Math.pow(2, this.profundidade); i++) {
                 this.setBucket(dis.readInt(), i);
             }
         } catch (IOException e) {

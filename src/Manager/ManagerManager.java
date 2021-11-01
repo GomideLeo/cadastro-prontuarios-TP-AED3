@@ -37,9 +37,9 @@ public class ManagerManager {
             this.dirManager = new DirectoryManager(this.documentFolder + "/dir.db", dirProfundidade);
             this.idxManager = new IndexManager(this.documentFolder + "/idx.db", registersInBucket);
             this.dataManager = new DataManager(this.documentFolder + "/data.db", dataRegisterSize);
-            
+
             this.dir = initDir(dirProfundidade);
-            
+
             this.saveDir();
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,19 +111,19 @@ public class ManagerManager {
         return bucket;
     }
 
-    private int[] getAllBucketsForKey (int key, int bucketDepth) {
+    private int[] getAllBucketsForKey(int key, int bucketDepth) {
         int bucketDirSize = (int) (Math.pow(2, bucketDepth));
         int keyBucketID = dir.hashFunction(key, bucketDepth);
         int depthDiff = dir.getProfundidade() - bucketDepth;
         // caso depthDiff == 0, usar 1, pois o diretório será expandido
         int nBucketsForKey = (int) Math.pow(2, depthDiff == 0 ? 1 : depthDiff);
 
-        int [] bucketIndexes = new int[nBucketsForKey];
+        int[] bucketIndexes = new int[nBucketsForKey];
 
         for (int i = 0; i < nBucketsForKey; i++) {
-            bucketIndexes[i] = bucketDirSize*i + keyBucketID;
+            bucketIndexes[i] = bucketDirSize * i + keyBucketID;
         }
-        
+
         return bucketIndexes;
     }
 
@@ -139,19 +139,19 @@ public class ManagerManager {
             // nesse caso salvo os dados que estao no buckt
             HashMap<Integer, Integer> bucketMap = new HashMap<Integer, Integer>(bucket.getData());
             bucketMap.put(key, value);
-            
+
             // obtem todas as posições que apontam para o mesmo endereço
             int[] possibleBucketIds = getAllBucketsForKey(key, bucket.getProfundidade());
 
             // Crio o novo bucket com profundidade n+1
             Bucket newBucket = new Bucket(bucket.getProfundidade() + 1, idxManager.getBucketSize());
             int newBucketAddress = idxManager.insertNewBucket(newBucket.toByteArray());
-            
+
             // Limpo bucket atual e salvo mudanca
             bucket.clearData();
             bucket.setProfundidade(bucket.getProfundidade() + 1);
             idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
-            
+
             if (bucket.getProfundidade() <= dir.getProfundidade()) {
                 // setar bucket na pos caso nao seja necessario duplicar o dir
                 for (int i = 0; i < possibleBucketIds.length; i++) {
@@ -170,15 +170,15 @@ public class ManagerManager {
             for (Map.Entry<Integer, Integer> entry : bucketMap.entrySet()) {
                 int destination = dir.hashFunction(entry.getKey());
                 int destinationIndex = java.util.Arrays.binarySearch(possibleBucketIds, destination);
-                
-                if (destinationIndex != -1 ) {
-                    if (destinationIndex % 2 == 0) 
+
+                if (destinationIndex != -1) {
+                    if (destinationIndex % 2 == 0)
                         bucket.insertData(entry.getKey(), entry.getValue());
-                    else 
+                    else
                         newBucket.insertData(entry.getKey(), entry.getValue());
                 }
             }
-            
+
             idxManager.updateBucket(bucket.toByteArray(), bucketAddress);
             idxManager.updateBucket(newBucket.toByteArray(), newBucketAddress);
             this.saveDir();

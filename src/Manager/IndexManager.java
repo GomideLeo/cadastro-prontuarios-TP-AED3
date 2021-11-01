@@ -62,7 +62,7 @@ public class IndexManager {
         if (pos > this.nBuckets) {
             throw new IndexOutOfBoundsException("Bucket n" + pos + " ainda não existe, tente inserí-lo primeiro.");
         }
-        
+
         int registerSize = this.bucketSize * 8 + 12;
         writeToFile(bucket, headerSize + (pos * registerSize));
     }
@@ -152,9 +152,9 @@ public class IndexManager {
         return this.fileSize;
     }
 
-    public void insertNBuckets(int n, int profundidade){
+    public void insertNBuckets(int n, int profundidade) {
         Bucket tempBucket = new Bucket(profundidade, this.bucketSize);
-        for (int i = 0; i < n; i++){
+        for (int i = 0; i < n; i++) {
             insertNewBucket(tempBucket.toByteArray());
         }
     }
