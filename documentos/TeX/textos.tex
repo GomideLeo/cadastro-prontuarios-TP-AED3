@@ -65,22 +65,36 @@ Nesse diretório encontra-se a classe \textit{App}, que é a primeira classe a s
 
 \subsubsection{\esp Manager}
  
-As classes encontradas no diretório "manager" são as classes que possuem métodos de mais baixo nível dentro do sistema. Ou seja, elas que fazem operações com Bytes, seja na conversão de um objeto para um vetor de bytes, ou vice e versa, e também a escrita, a sobrescrita e a leitura de vetores de Byte. 
+As classes encontradas no diretório "manager" são as classes que gerenciam os arquivos de dados dos sistemas, tentando ficar o mais próximo do baixo nível. Ou seja, elas que fazem operações com Bytes, sendo essas operações a escrita, a sobrescrita e a leitura de vetores de Byte. 
 
-Nelas também ja encontram-se métodos responsáveis por manusear os metadados do arquivo, guardar informações sobre os tamanhos do registro e o caminho para o arquivo mestre.
+Nelas também já encontram-se métodos responsáveis por manusear os metadados do arquivo, guardar informações sobre os tamanhos do registro e o caminho para o arquivo mestre.
 
 \subsubsection{\esp Model}
 
-Por fim, o diretório "model" é responsável por armazenar as classes que definem os objetos do sistem.
+Por fim, o diretório "model" é responsável por armazenar as classes que definem os objetos do sistema.
 
 
 \section{\esp Implementação}
 
 Uma vez exposta a estruturação do projeto, pode-se detalhar a implementação dos métodos implantados.
 
+\subsection{\esp Incialização}
+
+Antes de ter acesso ao sistema, o usuário deverá primeiro informar se ele já utilizará dados existentes ou se ele criará um novo arquivo de dados. No primeiro caso, é informado somente o caminho para a pasta onde estão os dados, e os atributos são obtidos lendo os dados contidos nos cabeçalhos desses arquivos. Caso opte pela segunda opção, diferentes atributos são requisitados, incluindo:
+\begin{itemize}
+  \item \textit{documentFolder} - A pasta onde serão guardados os arquivos de dados do sistema.
+  \item \textit{dirProfundidade} - Profundidade incial do arquivo de diretório. 
+  \item \textit{registersInBucket} - Número de registros que serão guardados nos \textit{Buckets} do índice.
+  \item \textit{dataRegisterSize} - Tamanho em Bytes de um registro.
+   \item \textit{dataNextCode} - Código inicial para registros (opcional).
+\end{itemize}
+
+Seguida da obtenção desses metadados, é iniciada a etapa de criação dos arquivos de Diretório, Índice e Mestre, nomeados respectivamente \textit{dir.db}, \textit{idx.db} e \textit{data.db}.Nota-se que quando um novo conjunto de arquivos é criado, o índice é populado com \textit{n} Buckets em branco, onde \textit{n} correponde à profundidade do diretório elevada ao quadrado.
+
+
 \subsection{\esp Modelo}
 
-As classes de modelo são as estruturas basicas do projeto, definindo os objetos do sistema, como descrito a seguir:
+As classes de modelo são as estruturas basicas do projeto, definindo os objetos do sistema. Sendo elas:
 
 
 \subsubsection{\esp Prontuario}
@@ -107,35 +121,97 @@ Em nossa implementação da entidade prontuário optamos pelos seguintes atribut
  \end{tabular}
 \end{table}
 
-Quando o Prontuário é codificado para ser inserido no arquivo de dados, os atributos são salvos nessa ordem utilizando os métodos da classe \textit{java.io.DataOutputStream}, no caso da \textit{dataNascimento}, é obtido a quantidade de milissegundos desde 1970 e codificado como um \textit{long}, no momento dessa codificação se o registro codificado estourar o tamanho pré-definido de registro do arquivo, uma \textit{IndexOutOfBoundsException} é estourada.
+Quando o Prontuário é codificado para ser inserido no arquivo de dados, os atributos são salvos nessa ordem utilizando os métodos da classe \textit{java.io.DataOutputStream}, no caso da \textit{dataNascimento}, é obtido a quantidade de milissegundos desde 1970 e codificado como um \textit{long}, no momento dessa codificação se o registro codificado estourar o tamanho pré-definido de registro do arquivo, uma \textit{IndexOutOfBoundsException} é estourada. 
 
-\subsection{\esp Arquivos de Dados/Mestre}
+\subsubsection{\esp Bucket}
 
-Para salvar os dados recebidos do usuário, foi utilizado um arquivo de dados com a extensão .db com cabeçalho e os dados em si, como especificado a seguir:
+Em nossa implementação da entidade Bucket optamos pelos seguintes atributos: 
 
-\subsubsection{\esp Cabeçalho}
+% Tabela
+\begin{table}[htb]
+	\centering
+	\caption{\hspace{0.1cm} Atributos }
+	\vspace{-0.3cm} % espaço entre titulo e tabela
+	\label{tab:tabela1}
+	% Conteúdo da tabela
+	\begin{tabular}{l|c|c}
+  \hline
+    \textbf{Nome}	& \textbf{Tipo de Dado} & \textbf{Tamanho (Bytes)} \\
+    \hline
+     profundidade         & int           & 4 \\
+     length   	    & int        & 4 \\
+     emptyLength	& int & 4 \\
+     data           & HashMap          & 8*length \\
+     \hline
+ \end{tabular}
+\end{table}
 
-O cabeçalho do arquivo contêm diferentes metadados que são utilizados por outras classes do sistema. Os metadados contidos são a variável \textit{registerSize}, especificada pelo usuário, que dita o tamanho fixo do arquivo; a variável \textit{headerSize}, ou tamanho do cabeçalho; o valor do próximo código a ser inserido, denomindado \textit{nextCode}; e por fim o \textit{fileSize}, que armazena o tamanho total do arquivo. 
+Para o atributo \textit{profundidade}, o valor é definido baseado no campo \textit{bucketSize} definido pelo usuário. Já o campo \textit{emptyLength} corresponde a quantos registros ainda cabem dentro do Bucket. No momento da inserção de um novo valor no Bucket, o valor desse atributo seja 0, ocorrerá uma exceção do tipo \textit{IndexOutOfBoundsException}.
 
-\subsubsection{\esp Conteúdo}
+Quando salvo em formato de Bytes, são escritos os primeiros 3 atributos e para cada par, chave e valor, no atributo \textit{data} são escritos os dois valores como int. Caso o atributo \textit{emptyLength} seja maior que 0, são populados \textit{n} pares do valor \textit{-1}, onde \textit{n} é a diferença entre o campo e 0.
 
-O conteúdo do arquivo mestre é composto por \textit{n} registros de tamanho \textit{registerSize}. Cada registro é composto pelos campos da classe \textit{Prontuario}, e também é utilizado dois bytes extras como lápide, sendo codificada como \textit{char} com o valor igual a \textit{'\textbackslash0'} por padrão e igual a \textit{'*'} quando o registro for deletado.
+\subsubsection{\esp Directory}
+
+Em nossa implementação da entidade Diretório optamos pelos seguintes atributos: 
+
+% Tabela
+\begin{table}[htb]
+	\centering
+	\caption{\hspace{0.1cm} Atributos }
+	\vspace{-0.3cm} % espaço entre titulo e tabela
+	\label{tab:tabela1}
+	% Conteúdo da tabela
+	\begin{tabular}{l|c|c}
+  \hline
+    \textbf{Nome}	& \textbf{Tipo de Dado} & \textbf{Tamanho (Bytes)} \\
+    \hline
+     profundidade         & int           & 4 \\
+     buckets   	    & int[]        & variável \\
+     \hline
+ \end{tabular}
+\end{table}
+
+Dentro dessa classe que encontra-se a função Hash e a função de estender o arquivo. Apesar dos dados do Diretório estarem salvos em um arquivo, optamos por deixa-lo em memória e apenas alterar o arquivo em memória secundária quando ocorrerem mudanças.
+
+\subsection{\esp Arquivos de Dados e Managers}
+
+Conforme abordado na seção 3.1, uma vez inicializado o sistema existem 3 arquivos salvos em memória secundária, cada qual possui uma classe manager específica que é responsável pela leitura dos arquivos e processamento de seus dados.
+
+Todos os arquivos seguem estruturas semelhantes, onde os primeiros Bytes sao correspondentes a metadados, administrados por seus respectivos Managers, e o restante sendo o conteúdo dos arquivos.
+
+Vale ressaltar também a existência da classe \textit{ManagerManager}, que nada mais é a classe "erenciadora dos gerenciadores", ou seja, ela faz a comunicação entre o diretório, o índice e o arquivo mestre. Por meio desta que é feito o CRUD, presente na seção seguinte.
 
 \subsection{\esp CRUD}
-A classe \textit{App} fica responsável de "interagir" com o usuário e servir de menu de opções. Uma vez que o usuário passe valores de input válido, a classe cria um objeto da classe \textit{Prontuario} e passa o objeto para a classe \textit{ProntuarioDAO}, que fica encarregada de terminar a operação.
+A classe \textit{App} fica responsável de "interagir" com o usuário e servir de menu de opções. Uma vez que o usuário passe valores de input válido, um objeto da classe \textit{ManagerManager}, nomeado \textit{manager}, e \textit{ProntuarioDAO}, nomeado \textit{dao}, ficam encarregados de finalizar a operação.
 
 \subsubsection{\esp Create}
-Para a inserção de um registro, a classe primeiro chama o método \textit{getFirstEmpty} que retorna qual a posição do primeiro registro que foi deletado ou retorna -1, caso o registro tenha que ser inserido no fim do arquivo. 
+Para a inserção de um registro, \textit{dao} chama a \textit{manager} passando o código e o objeto já codificado em bytes, com os quais, é realizada a inserção, que utiliza o atributo \textit{firstEmpty} do \textit{dataManager} para reaproveitar o espaço, caso esse atributo não seja \textit{-1}, o \textit{firstEmpty} é atualizado com o próximo valor da pilha, contido no endereço a ser reutilizado, e o objeto é inserido nessa posição que é retornada à \textit{manager}. Com esse valor, é calculado em qual bucket esse registro será inserido encontrando a sua posição no diretório por meio da função Hash, utilizando o campo código como chave. 
 
-Uma vez com esse \textit{offset}, como foi nomeado dentro do código, a classe DAO converte o objeto Prontuario para um vetor de Bytes, por meio da classe \textit{ProntuarioManager}, e chama a classe \textit{DbManger}, que munida do vetor de bytes e o offset, faz a inserção no arquivo.
+Nessa operação podem haver algumas exceções, como o Bucket apontado pelo Hash ainda não ter sido inicializado ou não haver espaço nele. Em ambos casos, manager resolve os conflitos e atualiza os arquivos necessários.
 
 \subsubsection{\esp Read}
-A leitura de registro é feita de \textit{n} em \textit{n} registros. Por \textit{default} esse passo é de 100 registros. Para fazer essa leitura é utilizada o método \textit{readFromFileBody}, da classe DbManager, que recebe a quantidade de registros a ser lida e o offset, ou seja, a partir de qual posição ela deverá ler. Esse método retorna um vetor de Bytes, que é convertido em um vetor de Prontuarios. Para registros que possuem um lápide indicando deleção, o registro é convertido em um objeto null.
+Para leitura, a chave é passada para o objeto \textit{manager} que fica responsável de encontrar o Bucket onde ela foi armazenada e em sequência encontrar em qual posição o registro foi salvo no arquivo mestre.
 
-Uma vez com esse vetor, a classe DAO compara se algum registro possui a ID especificada pelo usuário, caso algum possua ele retorna o prontuário, caso contrário, são lidos novos Prontuários até encontrar o id procurado, ou chegar ao fim do arquivo e retornar null.
+Uma vez com essa posição, o arquivo mestre é acessado e o vetor de bytes é passado ao objeto \textit{dao}, que por sua vez converte esses bytes em um objeto.
 
 \subsubsection{\esp Update}
-O mecanismo de atualização faz uso do método de leitura, descrito acima, para encontrar o prontuário especificado e sua posição no arquivo. Caso encontrado, o objeto prontuário recebe os novos valores passados pelo usuário e em sequência é utilizado o DbManager para sobrescrever o prontuário antigo com as novos dados.
+O mecanismo de atualização faz uso do índice para encontrar rapidamente o prontuário especificado e sua posição no arquivo. Caso encontrado, é utilizado o \textit{DbManager} para sobrescrever o prontuário antigo com o objeto recebido como um vetor de bytes pela \textit{dao}.
 
 \subsubsection{\esp Delete}
-Similar ao método de atualização, o método de deleção faz uso de outro método para sua operação. Nesse caso, ele utiliza a atualização, que possui uma variável booleana chamada \textit{delete}. Essa variável, é igual a false no método \textit{updateProntuario} onde não se passa esse parâmetro, é responsável por escreve a lápide do registro. Caso o valor do parâmetro seja True, os Bytes da lápide serão escritos de forma a sinalizar a deleção.
+O método de deleção faz uso de outro método para sua operação, a atualização, que recebe o objeto em um vetor de bytes a ser alterado, mas quando chamado pelo \textit{deleteObject}, é passado somente a lápide preenchida e um inteiro para compor a pilha de deleção. O inteiro é obtido pela váriável \textit{firstEmpty} do \textit{dataManager}, que é substituída pela posição atual do objeto no arquivo de dados.
+
+\subsection{\esp Índice}
+Neste trabalho fazemos uso de um índice de Hash extensível para melhorar o desempenho para a busca de um objeto dentro do arquivo mestre. Para tal, sempre que um objeto é inserido, atualizamos também um arquivo com a posição de cada um dos objetos do sistema e seus respectivos códigos, organizados de acordo com o resultado de uma função Hash, que será descrita na seção \ref{dir}.
+
+\subsubsection{\esp Diretório}
+\label{dir}
+O diretório é um arquivo usado para redirecionar um objeto para um bucket, por meio de uma função Hash combinada a uma tabela com os resultados dessa função e a posição do bucket, consistente para qualquer objeto e preferencialmente uniformemente dividida no espaço de busca. Para a nossa aplicação, simplesmente utilizamos o código do Prontuário e obtemos seu módulo de 2$^n$, sendo \textit{n} a profundidade atual do diretório, garantindo que sempre que a função seja executada para uma mesma chave, o bucket correto sempre será encontrado com uma complexidade \textit{O(1)}.
+
+\subsubsection{\esp Buckets}
+Os Buckets são as estruturas que armazenam as referencias para os objetos no arquivo de dados, essas estruturas armazenam uma chave e a posição do arquivo, tal que sempre que uma chave é recebida pelo bucket correto, por meio do Diretório, é possível encontrar o objeto procurado. 
+
+Esta estrutura possui uma limitação da quantidade de chaves que pode armazenar, sendo que quando uma chave tenta ser inserida após o limite ser excedido, uma expansão precisa ser executada, que pode ser de dois tipos: de bucket, e de diretório. 
+
+Para o primeiro caso, a profundidade do bucket é menor que a do diretório, fazendo com que existam no mínimo duas posições do diretório apontando para um mesmo bucket. Então fazemos com que cada segunda posição aponte para um mesmo novo bucket, e todos os objetos do bucket original precisam ser reorganizados entre esses dois novos buckets, possívelmente ativando uma nova divisão, caso todos os itens se mantenham em somente um dos dois buckets.
+
+Para o segundo caso, o existe somente uma instância do bucket dentro do diretório, forçando sua expansão, que é simplesmente aumentar sua profundidade duplicar o diretório antigo tal que para toda posição \textit{p > 2$^{n-1}$} o bucket que será apontado será o apontado pela posição \textit{p - 2$^{n-1}$}. Depois que essa operação é executada, basta fazer uma divisão de bucket.
