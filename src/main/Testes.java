@@ -41,7 +41,8 @@ public class Testes {
 
         csvWriter.writeUTF(" , Tipo de Memória, Tamanho do arquivo de dados, Numero de Registros, Tamanho do Registro,"
                 + " Profundidade Inicial do Diretório, Profundidade Final do Diretorio, Tamanho dos Buckets,"
-                + " Tempo Total de Inserção (ms), Tempo de Inserção por Registro (ms)\n");
+                + " Tempo Total de Inserção (ms), Tempo de Inserção por Registro (ms), Tempo de atualização de Registro,"
+                + " Tempo de deleção de Registro, Tempo para leitura de Registro\n");
 
         csvWriter.close();
 
@@ -186,12 +187,39 @@ public class Testes {
             int bucketSize, String memType) throws IOException {
         Path path = Paths.get(dataPath);
 
+        long totalReadTime = 0, totalUpdateTime = 0, totalDeleteTime = 0;
         pdao = new ProntuarioDAO(dataPath, dirInit, bucketSize, registerSize);
 
         long start = System.currentTimeMillis();
         insertNProntuarios(insertCodes);
         long end = System.currentTimeMillis();
-        long totalTime = end - start;
+        long totalInsertTime = end - start;
+
+        Iterator<Integer> CodIterator = insertCodes.iterator();
+        for (int i = 0; i < 10; i++) {
+            try {
+                Integer cod = CodIterator.next();
+
+                start = System.currentTimeMillis();
+                Prontuario aux = pdao.getProntuario(cod);
+                end = System.currentTimeMillis();
+                totalReadTime += end - start;
+
+                aux.setAnotacoes("Novas anotacoes");
+                start = System.currentTimeMillis();
+                pdao.updateProntuario(aux);
+                end = System.currentTimeMillis();
+                totalUpdateTime += end - start;
+
+                start = System.currentTimeMillis();
+                pdao.deleteProntuario(cod);
+                end = System.currentTimeMillis();
+                totalDeleteTime += end - start;
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 
         path = Paths.get(dataPath + "/data.db");
 
@@ -200,8 +228,9 @@ public class Testes {
         csvWriter.seek(csvWriter.length());
 
         csvWriter.writeUTF(" , " + memType + ", " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", "
-                + dirInit + ", " + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", "
-                + totalTime / (double) nRegisters + "\n");
+                + dirInit + ", " + pdao.getDirDepth() + ", " + bucketSize + ", " + totalInsertTime + ", "
+                + totalInsertTime / (double) nRegisters + ", " + totalUpdateTime / (double)10 + ", " + totalDeleteTime / (double)10
+                + ", " + totalReadTime / (double)10 + "\n");
 
         csvWriter.close();
     }
