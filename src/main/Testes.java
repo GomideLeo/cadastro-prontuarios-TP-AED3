@@ -39,9 +39,11 @@ public class Testes {
 
         csvWriter.seek(0);
 
-        csvWriter.writeUTF("Tipo de Memória, Tamanho do arquivo de dados, Numero de Registros, Tamanho do Registro,"
+        csvWriter.writeUTF(" , Tipo de Memória, Tamanho do arquivo de dados, Numero de Registros, Tamanho do Registro,"
                 + " Profundidade Inicial do Diretório, Profundidade Final do Diretorio, Tamanho dos Buckets,"
-                + " Tempo Total de Inserção (ms), Tempo de Inserção por Registro (ms)%n");
+                + " Tempo Total de Inserção (ms), Tempo de Inserção por Registro (ms)\n");
+
+        csvWriter.close();
 
         // 20 000 - 500B - 2 - 62
 
@@ -151,13 +153,13 @@ public class Testes {
         System.out.println("start " + subPath + " SSD");
         run(insertCodes, dataPathSSD + subPath, nRegisters, registerSize, dirInit, bucketSize, "SSD");
 
-        // 5 000 000 - 500B - 8 - 510
+        // 5 000 000 - 500B - 8 - 62
 
         nRegisters = 5000000;
         insertCodes = getRandomCodes(nRegisters);
         registerSize = 500;
         dirInit = 8;
-        bucketSize = 510;
+        bucketSize = 62;
         subPath = "/teste09";
 
         System.out.println("start " + subPath + " HDD");
@@ -166,6 +168,18 @@ public class Testes {
         System.out.println("start " + subPath + " SSD");
         run(insertCodes, dataPathSSD + subPath, nRegisters, registerSize, dirInit, bucketSize, "SSD");
 
+        // 5 000 000 - 500B - 8 - 510
+
+        registerSize = 500;
+        dirInit = 8;
+        bucketSize = 510;
+        subPath = "/teste10";
+
+        System.out.println("start " + subPath + " HDD");
+        run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
+
+        System.out.println("start " + subPath + " SSD");
+        run(insertCodes, dataPathSSD + subPath, nRegisters, registerSize, dirInit, bucketSize, "SSD");
     }
 
     static void run(Set<Integer> insertCodes, String dataPath, int nRegisters, int registerSize, int dirInit,
@@ -181,9 +195,15 @@ public class Testes {
 
         path = Paths.get(dataPath + "/data.db");
 
-        csvWriter.append(memType + ", " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit
-                + ", " + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters
-                + "\n");
+        csvWriter = new RandomAccessFile("results.csv", "rw");
+
+        csvWriter.seek(csvWriter.length());
+
+        csvWriter.writeUTF(" , " + memType + ", " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", "
+                + dirInit + ", " + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", "
+                + totalTime / (double) nRegisters + "\n");
+
+        csvWriter.close();
     }
 
     static Set<Integer> getRandomCodes(int n) {
