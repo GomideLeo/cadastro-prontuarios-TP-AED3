@@ -154,7 +154,6 @@ public class Testes {
         subPath = "/teste09";
 
         System.out.println("start " + subPath + " HDD");
-
         run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
 
         System.out.println("start " + subPath + " SSD");
