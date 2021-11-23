@@ -38,7 +38,7 @@ public class Testes {
 
         // 20 000 - 500B - 2 - 62
 
-        nRegisters = 20000;
+        nRegisters = 200;
         insertCodes = getRandomCodes(nRegisters);
         registerSize = 500;
         dirInit = 2;
@@ -66,7 +66,7 @@ public class Testes {
 
         // 200 000 - 500B - 2 - 62
 
-        nRegisters = 2000;
+        nRegisters = 200000;
         insertCodes = getRandomCodes(nRegisters);
         registerSize = 500;
         dirInit = 2;
@@ -146,7 +146,7 @@ public class Testes {
 
         // 5 000 000 - 500B - 8 - 510
 
-        nRegisters = 5000;
+        nRegisters = 5000000;
         insertCodes = getRandomCodes(nRegisters);
         registerSize = 500;
         dirInit = 8;
