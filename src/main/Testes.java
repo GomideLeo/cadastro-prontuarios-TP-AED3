@@ -1,8 +1,8 @@
 package main;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,7 +18,7 @@ import model.*;
 public class Testes {
     static ProntuarioDAO pdao;
     static Random rng = new Random(); // Ideally just create one instance globally
-    static BufferedWriter csvWriter;
+    static RandomAccessFile csvWriter;
 
     public static void main(String[] args) throws IOException {
         String dataPathHDD = "D:/leocg/Documents/PUC/2021-2_3oPeriodo/AEDIII/TrabalhoPratico/dados/benchmark";
@@ -30,11 +30,18 @@ public class Testes {
         int bucketSize;
         String subPath;
 
-        csvWriter = new BufferedWriter(new FileWriter("results.csv"));
+        File f = new File("results.csv");
+        if (f.exists()) {
+            f.delete();
+        }
 
-        csvWriter.append("Tipo de Memória, Tamanho do arquivo de dados, Numero de Registros, Tamanho do Registro,"
+        csvWriter = new RandomAccessFile("results.csv", "rw");
+
+        csvWriter.seek(0);
+
+        csvWriter.writeUTF("Tipo de Memória, Tamanho do arquivo de dados, Numero de Registros, Tamanho do Registro,"
                 + " Profundidade Inicial do Diretório, Profundidade Final do Diretorio, Tamanho dos Buckets,"
-                + " Tempo Total de Inserção (ms), Tempo de Inserção por Registro (ms)\n");
+                + " Tempo Total de Inserção (ms), Tempo de Inserção por Registro (ms)%n");
 
         // 20 000 - 500B - 2 - 62
 
