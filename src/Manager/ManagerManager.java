@@ -272,4 +272,8 @@ public class ManagerManager {
     private void updateMemoryDir() {
         dir.readFromByteArray(dirManager.readFromFile());
     }
+
+    public int getDirDepth() {
+        return dir.getProfundidade();
+    }
 }

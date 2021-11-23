@@ -1,10 +1,14 @@
 package main;
 
-import java.io.FileNotFoundException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.Set;
 
 import dao.*;
@@ -14,32 +18,347 @@ import model.*;
 public class Testes {
     static ProntuarioDAO pdao;
     static Random rng = new Random(); // Ideally just create one instance globally
+    static BufferedWriter csvWriter;
 
-    public static void main(String[] args) {
-        String dataPath1 = "/d:/leocg/Documents/PUC/2021-2_3oPeriodo/AEDIII/TrabalhoPratico/cadastro-prontuarios-TP-AED3/dados/benchmark";
-        String dataPath2 = "/c:/Users/leocg/AC3TP/dados";
+    public static void main(String[] args) throws IOException {
+        String dataPathHDD = "/d:/leocg/Documents/PUC/2021-2_3oPeriodo/AEDIII/TrabalhoPratico/dados/benchmark";
+        String dataPathSSD = "/c:/Users/leocg/AC3TP/dados";
+        Path path;
+        Set<Integer> insertCodes;
+        long start;
+        long end;
+        long totalTime;
+        int nRegisters;
+        int registerSize;
+        int dirInit;
+        int bucketSize;
+        String subPath;
 
-        // 5 000 000 - 250B - 8 - 510
+        csvWriter = new BufferedWriter(new FileWriter("results.csv"));
 
-        // 200 000 - 250B - 2 - 62
+        csvWriter.append(
+                "Tipo de Memória, Tamanho do arquivo de dados, Numero de Registros, Tamanho do Registro, Profundidade Inicial do Diretório, Profundidade Final do Diretorio, Tamanho dos Buckets, Tempo Total de Inserção (ms), Tempo de Inserção por Registro (ms)\n");
+
+        // 20 000 - 500B - 2 - 62
+
+        nRegisters = 20000;
+        insertCodes = getRandomCodes(nRegisters);
+        registerSize = 500;
+        dirInit = 2;
+        bucketSize = 62;
+        subPath = "/teste01";
+
+        System.out.println("start " + subPath + " HDD");
+
+        pdao = new ProntuarioDAO(dataPathHDD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathHDD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        System.out.println("start " + subPath + " SSD");
+
+        pdao = new ProntuarioDAO(dataPathSSD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathSSD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        // 20 000 - 500B - 8 - 62
+
+        registerSize = 500;
+        dirInit = 8;
+        bucketSize = 62;
+        subPath = "/teste02";
+
+        System.out.println("start " + subPath + " HDD");
+
+        pdao = new ProntuarioDAO(dataPathHDD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathHDD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        System.out.println("start " + subPath + " SSD");
+
+        pdao = new ProntuarioDAO(dataPathSSD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathSSD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        // 200 000 - 500B - 2 - 62
+
+        nRegisters = 200000;
+        insertCodes = getRandomCodes(nRegisters);
+        registerSize = 500;
+        dirInit = 2;
+        bucketSize = 62;
+        subPath = "/teste03";
+
+        System.out.println("start " + subPath + " HDD");
+
+        pdao = new ProntuarioDAO(dataPathHDD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathHDD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        System.out.println("start " + subPath + " SSD");
+
+        pdao = new ProntuarioDAO(dataPathSSD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathSSD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
 
         // 200 000 - 250B - 8 - 62
 
-        pdao = new ProntuarioDAO(dataPath1 + "/teste01", 8, 62, 500);
-        Set<Integer> insertCodes = getRandomCodes(20000);
+        registerSize = 500;
+        dirInit = 8;
+        bucketSize = 62;
+        subPath = "/teste04";
 
-        long start = System.currentTimeMillis();
+        System.out.println("start " + subPath + " HDD");
+
+        pdao = new ProntuarioDAO(dataPathHDD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
         insertNProntuarios(insertCodes);
-        long end = System.currentTimeMillis();
+        end = System.currentTimeMillis();
+        totalTime = end - start;
 
-        System.out.println(end - start);
+        path = Paths.get((dataPathHDD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        System.out.println("start " + subPath + " SSD");
+
+        pdao = new ProntuarioDAO(dataPathSSD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathSSD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
 
         // 200 000 - 250B - 2 - 126
-        // 200 000 - 250B - 8 - 126
-        // 200 000 - 250B - 2 - 510
-        // 200 000 - 250B - 8 - 510
 
-        // 510
+        registerSize = 500;
+        dirInit = 2;
+        bucketSize = 126;
+        subPath = "/teste05";
+
+        System.out.println("start " + subPath + " HDD");
+
+        pdao = new ProntuarioDAO(dataPathHDD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathHDD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        System.out.println("start " + subPath + " SSD");
+
+        pdao = new ProntuarioDAO(dataPathSSD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathSSD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        // 200 000 - 500B - 8 - 126
+
+        registerSize = 500;
+        dirInit = 8;
+        bucketSize = 126;
+        subPath = "/teste06";
+
+        System.out.println("start " + subPath + " HDD");
+
+        pdao = new ProntuarioDAO(dataPathHDD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathHDD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        System.out.println("start " + subPath + " SSD");
+
+        pdao = new ProntuarioDAO(dataPathSSD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathSSD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        // 200 000 - 500B - 2 - 510
+
+        registerSize = 500;
+        dirInit = 2;
+        bucketSize = 510;
+        subPath = "/teste07";
+
+        System.out.println("start " + subPath + " HDD");
+
+        pdao = new ProntuarioDAO(dataPathHDD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathHDD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        System.out.println("start " + subPath + " SSD");
+
+        pdao = new ProntuarioDAO(dataPathSSD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathSSD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        // 200 000 - 500B - 8 - 510
+
+        registerSize = 500;
+        dirInit = 8;
+        bucketSize = 510;
+        subPath = "/teste08";
+
+        System.out.println("start " + subPath + " HDD");
+
+        pdao = new ProntuarioDAO(dataPathHDD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathHDD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        System.out.println("start " + subPath + " SSD");
+
+        pdao = new ProntuarioDAO(dataPathSSD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathSSD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        // 5 000 000 - 500B - 8 - 510
+
+        nRegisters = 5000000;
+        insertCodes = getRandomCodes(nRegisters);
+        registerSize = 500;
+        dirInit = 8;
+        bucketSize = 510;
+        subPath = "/teste09";
+
+        System.out.println("start " + subPath + " HDD");
+
+        pdao = new ProntuarioDAO(dataPathHDD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathHDD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
+
+        System.out.println("start " + subPath + " SSD");
+
+        pdao = new ProntuarioDAO(dataPathSSD + subPath, dirInit, bucketSize, registerSize);
+
+        start = System.currentTimeMillis();
+        insertNProntuarios(insertCodes);
+        end = System.currentTimeMillis();
+        totalTime = end - start;
+
+        path = Paths.get((dataPathSSD + subPath + "/dir.db"));
+
+        csvWriter.append("HDD, " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", " + dirInit + ", "
+                + pdao.getDirDepth() + ", " + bucketSize + ", " + totalTime + ", " + totalTime / nRegisters + "\n");
 
     }
 

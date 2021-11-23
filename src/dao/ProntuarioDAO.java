@@ -80,4 +80,8 @@ public class ProntuarioDAO {
         return p;
     }
 
+    public int getDirDepth() {
+        return managerManager.getDirDepth();
+    }
+
 }
