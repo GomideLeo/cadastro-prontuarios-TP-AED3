@@ -21,8 +21,8 @@ public class Testes {
     static BufferedWriter csvWriter;
 
     public static void main(String[] args) throws IOException {
-        String dataPathHDD = "/d:/leocg/Documents/PUC/2021-2_3oPeriodo/AEDIII/TrabalhoPratico/dados/benchmark";
-        String dataPathSSD = "/c:/Users/leocg/AC3TP/dados";
+        String dataPathHDD = "D:/leocg/Documents/PUC/2021-2_3oPeriodo/AEDIII/TrabalhoPratico/dados/benchmark";
+        String dataPathSSD = "C:/Users/leocg/AC3TP/dados";
         Set<Integer> insertCodes;
         int nRegisters;
         int registerSize;
@@ -38,7 +38,7 @@ public class Testes {
 
         // 20 000 - 500B - 2 - 62
 
-        nRegisters = 200;
+        nRegisters = 20000;
         insertCodes = getRandomCodes(nRegisters);
         registerSize = 500;
         dirInit = 2;
