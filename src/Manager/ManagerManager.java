@@ -202,7 +202,7 @@ public class ManagerManager {
         }
     }
 
-    public void insertKey(int key, byte[] object) throws Exception {
+    public void insertKey(int key, byte[] object) throws Exception, IOException {
         int offset = -1;
         offset = dataManager.updateFirstEmpty();
 

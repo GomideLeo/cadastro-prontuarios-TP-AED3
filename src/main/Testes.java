@@ -273,6 +273,17 @@ public class Testes {
         for (Integer cod : insertCodes) {
             try {
                 pdao.createProntuario(generateProntuario(cod));
+            } catch (IOException e) {
+                // tries one more time if facing an IOExcepption
+                e.printStackTrace();
+                System.out.println("Trying one more Time");
+                try {
+                    pdao.createProntuario(generateProntuario(cod));
+                    System.out.println("Success");
+                } catch (Exception e1) {
+                    System.out.println("Fail");
+                    e1.printStackTrace();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
