@@ -44,10 +44,10 @@ public class Testes {
         csvWriter.seek(0);
 
         csvWriter.writeUTF(
-                " , Tipo de Memória, Tamanho do arquivo de dados, Tamanho do arquivo de índice, Tamanho do arquivo de diretório"
-                        + " Numero de Registros, Numero de Buckets, Tamanho do Registro, Profundidade Inicial do Diretório,"
-                        + " Profundidade Final do Diretorio, Tamanho dos Buckets, Tempo Total de Inserção, Tempo de Inserção por Registro,"
-                        + " Tempo de atualização de Registro, Tempo de deleção de Registro, Tempo para leitura de Registro\n");
+                " , Tipo de Memória, Tamanho do arquivo de dados, Tamanho do arquivo de índice, Tamanho do arquivo de diretório, "
+                        + "Numero de Registros, Numero de Buckets, Tamanho do Registro, Profundidade Inicial do Diretório, "
+                        + "Profundidade Final do Diretorio, Tamanho dos Buckets, Tempo Total de Inserção, Tempo de Inserção por Registro, "
+                        + "Tempo de atualização de Registro, Tempo de deleção de Registro, Tempo para leitura de Registro\n");
 
         csvWriter.close();
 
@@ -241,7 +241,7 @@ public class Testes {
         csvWriter.seek(csvWriter.length());
 
         csvWriter.writeUTF(" , " + memType + ", " + dataSize + ", " + indexSize + ", " + dirSize + ", " + nRegisters
-                + ", " + registerSize + ", " + dirInit + ", " + pdao.getDirDepth() + ", " + pdao.getNBuckets() + ", "
+                + ", " + pdao.getNBuckets() + ", " + registerSize + ", " + dirInit + ", " + pdao.getDirDepth() + ", "
                 + bucketSize + ", " + totalInsertTime + ", " + totalInsertTime / (double) nRegisters + ", "
                 + totalUpdateTime / (double) testLen + ", " + totalDeleteTime / (double) testLen + ", "
                 + totalReadTime / (double) testLen + "\n");
