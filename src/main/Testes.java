@@ -238,6 +238,8 @@ public class Testes {
 
         csvWriter.close();
 
+        path = Paths.get(dataPath);
+
         if (deleteOld) {
             deleteDirectoryRecursion(path);
         }
