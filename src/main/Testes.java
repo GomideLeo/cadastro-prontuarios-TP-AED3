@@ -79,10 +79,8 @@ public class Testes {
         System.out.println("start " + subPath + " SSD");
         run(insertCodes, dataPathSSD + subPath, nRegisters, registerSize, dirInit, bucketSize, "SSD");
 
-        // 200 000 - 500B - 2 - 62
+        // 20 000 - 500B - 2 - 510
 
-        nRegisters = 200000;
-        insertCodes = getRandomCodes(nRegisters);
         registerSize = 500;
         dirInit = 2;
         bucketSize = 62;
@@ -94,7 +92,7 @@ public class Testes {
         System.out.println("start " + subPath + " SSD");
         run(insertCodes, dataPathSSD + subPath, nRegisters, registerSize, dirInit, bucketSize, "SSD");
 
-        // 200 000 - 250B - 8 - 62
+        // 20 000 - 500B - 8 - 510
 
         registerSize = 500;
         dirInit = 8;
@@ -107,12 +105,40 @@ public class Testes {
         System.out.println("start " + subPath + " SSD");
         run(insertCodes, dataPathSSD + subPath, nRegisters, registerSize, dirInit, bucketSize, "SSD");
 
+        // 200 000 - 500B - 2 - 62
+
+        nRegisters = 200000;
+        insertCodes = getRandomCodes(nRegisters);
+        registerSize = 500;
+        dirInit = 2;
+        bucketSize = 62;
+        subPath = "/teste05";
+
+        System.out.println("start " + subPath + " HDD");
+        run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
+
+        System.out.println("start " + subPath + " SSD");
+        run(insertCodes, dataPathSSD + subPath, nRegisters, registerSize, dirInit, bucketSize, "SSD");
+
+        // 200 000 - 250B - 8 - 62
+
+        registerSize = 500;
+        dirInit = 8;
+        bucketSize = 62;
+        subPath = "/teste06";
+
+        System.out.println("start " + subPath + " HDD");
+        run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
+
+        System.out.println("start " + subPath + " SSD");
+        run(insertCodes, dataPathSSD + subPath, nRegisters, registerSize, dirInit, bucketSize, "SSD");
+
         // 200 000 - 250B - 2 - 126
 
         registerSize = 500;
         dirInit = 2;
         bucketSize = 126;
-        subPath = "/teste05";
+        subPath = "/teste07";
 
         System.out.println("start " + subPath + " HDD");
         run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
@@ -125,7 +151,7 @@ public class Testes {
         registerSize = 500;
         dirInit = 8;
         bucketSize = 126;
-        subPath = "/teste06";
+        subPath = "/teste08";
 
         System.out.println("start " + subPath + " HDD");
         run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
@@ -138,7 +164,7 @@ public class Testes {
         registerSize = 500;
         dirInit = 2;
         bucketSize = 510;
-        subPath = "/teste07";
+        subPath = "/teste09";
 
         System.out.println("start " + subPath + " HDD");
         run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
@@ -151,7 +177,7 @@ public class Testes {
         registerSize = 500;
         dirInit = 8;
         bucketSize = 510;
-        subPath = "/teste08";
+        subPath = "/teste10";
 
         System.out.println("start " + subPath + " HDD");
         run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
@@ -166,7 +192,7 @@ public class Testes {
         registerSize = 500;
         dirInit = 8;
         bucketSize = 62;
-        subPath = "/teste09";
+        subPath = "/teste11";
 
         System.out.println("start " + subPath + " HDD");
         run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
@@ -179,7 +205,7 @@ public class Testes {
         registerSize = 500;
         dirInit = 8;
         bucketSize = 510;
-        subPath = "/teste10";
+        subPath = "/teste12";
 
         System.out.println("start " + subPath + " HDD");
         run(insertCodes, dataPathHDD + subPath, nRegisters, registerSize, dirInit, bucketSize, "HDD");
