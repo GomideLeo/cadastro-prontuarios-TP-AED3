@@ -43,10 +43,11 @@ public class Testes {
 
         csvWriter.seek(0);
 
-        csvWriter.writeUTF(" , Tipo de Memória, Tamanho do arquivo de dados, Numero de Registros, Tamanho do Registro,"
-                + " Profundidade Inicial do Diretório, Profundidade Final do Diretorio, Tamanho dos Buckets,"
-                + " Tempo Total de Inserção (ms), Tempo de Inserção por Registro (ms), Tempo de atualização de Registro,"
-                + " Tempo de deleção de Registro, Tempo para leitura de Registro\n");
+        csvWriter.writeUTF(
+                " , Tipo de Memória, Tamanho do arquivo de dados, Tamanho do arquivo de índice, Tamanho do arquivo de diretório"
+                        + " Numero de Registros, Numero de Buckets, Tamanho do Registro, Profundidade Inicial do Diretório,"
+                        + " Profundidade Final do Diretorio, Tamanho dos Buckets, Tempo Total de Inserção, Tempo de Inserção por Registro,"
+                        + " Tempo de atualização de Registro, Tempo de deleção de Registro, Tempo para leitura de Registro\n");
 
         csvWriter.close();
 
@@ -160,7 +161,7 @@ public class Testes {
 
         // 5 000 000 - 500B - 8 - 62
 
-        nRegisters = 5000000;
+        nRegisters = 500000;
         insertCodes = getRandomCodes(nRegisters);
         registerSize = 500;
         dirInit = 8;
@@ -199,8 +200,10 @@ public class Testes {
         long end = System.currentTimeMillis();
         long totalInsertTime = end - start;
 
+        int testLen = 100;
+
         Iterator<Integer> CodIterator = insertCodes.iterator();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < testLen; i++) {
             try {
                 Integer cod = CodIterator.next();
 
@@ -220,21 +223,28 @@ public class Testes {
                 end = System.currentTimeMillis();
                 totalDeleteTime += end - start;
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
 
         path = Paths.get(dataPath + "/data.db");
+        long dataSize = Files.size(path);
+
+        path = Paths.get(dataPath + "/idx.db");
+        long indexSize = Files.size(path);
+
+        path = Paths.get(dataPath + "/dir.db");
+        long dirSize = Files.size(path);
 
         csvWriter = new RandomAccessFile("results.csv", "rw");
 
         csvWriter.seek(csvWriter.length());
 
-        csvWriter.writeUTF(" , " + memType + ", " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", "
-                + dirInit + ", " + pdao.getDirDepth() + ", " + bucketSize + ", " + totalInsertTime + ", "
-                + totalInsertTime / (double) nRegisters + ", " + totalUpdateTime / (double) 10 + ", "
-                + totalDeleteTime / (double) 10 + ", " + totalReadTime / (double) 10 + "\n");
+        csvWriter.writeUTF(" , " + memType + ", " + dataSize + ", " + indexSize + ", " + dirSize + ", " + nRegisters
+                + ", " + registerSize + ", " + dirInit + ", " + pdao.getDirDepth() + ", " + pdao.getNBuckets() + ", "
+                + bucketSize + ", " + totalInsertTime + ", " + totalInsertTime / (double) nRegisters + ", "
+                + totalUpdateTime / (double) testLen + ", " + totalDeleteTime / (double) testLen + ", "
+                + totalReadTime / (double) testLen + "\n");
 
         csvWriter.close();
 

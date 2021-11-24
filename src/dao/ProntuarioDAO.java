@@ -84,4 +84,8 @@ public class ProntuarioDAO {
         return managerManager.getDirDepth();
     }
 
+    public int getNBuckets() {
+        return managerManager.getNBuckets();
+    }
+
 }

@@ -276,4 +276,8 @@ public class ManagerManager {
     public int getDirDepth() {
         return dir.getProfundidade();
     }
+
+    public int getNBuckets() {
+        return idxManager.getNBuckets();
+    }
 }
