@@ -3,7 +3,9 @@ package main;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
@@ -20,6 +22,7 @@ public class Testes {
     static ProntuarioDAO pdao;
     static Random rng = new Random(); // Ideally just create one instance globally
     static RandomAccessFile csvWriter;
+    static final boolean deleteOld = false;
 
     public static void main(String[] args) throws IOException {
         String dataPathHDD = "D:/leocg/Documents/PUC/2021-2_3oPeriodo/AEDIII/TrabalhoPratico/dados/benchmark";
@@ -234,6 +237,21 @@ public class Testes {
                 + totalDeleteTime / (double) 10 + ", " + totalReadTime / (double) 10 + "\n");
 
         csvWriter.close();
+
+        if (deleteOld) {
+            deleteDirectoryRecursion(path);
+        }
+    }
+
+    static void deleteDirectoryRecursion(Path path) throws IOException {
+        if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+            try (DirectoryStream<Path> entries = Files.newDirectoryStream(path)) {
+                for (Path entry : entries) {
+                    deleteDirectoryRecursion(entry);
+                }
+            }
+        }
+        Files.delete(path);
     }
 
     static Set<Integer> getRandomCodes(int n) {
