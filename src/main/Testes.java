@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Random;
 import java.util.Set;
@@ -229,8 +230,8 @@ public class Testes {
 
         csvWriter.writeUTF(" , " + memType + ", " + Files.size(path) + ", " + nRegisters + ", " + registerSize + ", "
                 + dirInit + ", " + pdao.getDirDepth() + ", " + bucketSize + ", " + totalInsertTime + ", "
-                + totalInsertTime / (double) nRegisters + ", " + totalUpdateTime / (double)10 + ", " + totalDeleteTime / (double)10
-                + ", " + totalReadTime / (double)10 + "\n");
+                + totalInsertTime / (double) nRegisters + ", " + totalUpdateTime / (double) 10 + ", "
+                + totalDeleteTime / (double) 10 + ", " + totalReadTime / (double) 10 + "\n");
 
         csvWriter.close();
     }

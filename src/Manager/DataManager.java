@@ -14,11 +14,12 @@ public class DataManager {
     protected int registerSize;
     protected int nextCode;
     protected int firstEmpty;
-    protected int fileSize;
+    protected long fileSize;
+    static RandomAccessFile arquivo;
 
     private void writeNextCode() {
         try {
-            RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
+            arquivo = new RandomAccessFile(filePath, "rw");
             arquivo.seek(8);
             arquivo.writeInt(nextCode);
             arquivo.close();
@@ -29,10 +30,10 @@ public class DataManager {
 
     private void updateFileSize() {
         try {
-            RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
+            arquivo = new RandomAccessFile(filePath, "rw");
             arquivo.seek(16);
-            fileSize = (int) arquivo.length();
-            arquivo.writeInt(fileSize);
+            fileSize = arquivo.length();
+            arquivo.writeLong(fileSize);
             arquivo.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -57,19 +58,19 @@ public class DataManager {
         return this.registerSize;
     }
 
-    public int getFileSize() {
+    public long getFileSize() {
         return this.fileSize;
     }
 
     private void getHeaderData() {
         try {
-            RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
+            arquivo = new RandomAccessFile(filePath, "r");
             arquivo.seek(0);
             headerSize = arquivo.readInt();
             registerSize = arquivo.readInt();
             nextCode = arquivo.readInt();
             firstEmpty = arquivo.readInt();
-            fileSize = arquivo.readInt();
+            fileSize = arquivo.readLong();
             arquivo.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,13 +79,13 @@ public class DataManager {
 
     private void writeHeaderData() {
         try {
-            RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
+            arquivo = new RandomAccessFile(filePath, "rw");
             arquivo.seek(0);
             arquivo.writeInt(headerSize);
             arquivo.writeInt(registerSize);
             arquivo.writeInt(nextCode);
             arquivo.writeInt(firstEmpty);
-            arquivo.writeInt(fileSize);
+            arquivo.writeLong(fileSize);
             arquivo.close();
             updateFileSize();
         } catch (IOException e) {
@@ -105,7 +106,7 @@ public class DataManager {
     public DataManager(String filePath, int registerSize) {
         this.filePath = filePath;
         this.registerSize = registerSize;
-        this.headerSize = 20;
+        this.headerSize = 24;
         this.nextCode = 1;
         this.firstEmpty = -1;
         this.fileSize = this.headerSize;
@@ -121,7 +122,7 @@ public class DataManager {
     public DataManager(String filePath, int registerSize, int nextCode) {
         this.filePath = filePath;
         this.registerSize = registerSize;
-        this.headerSize = 20;
+        this.headerSize = 24;
         this.nextCode = nextCode;
         this.firstEmpty = -1;
         this.fileSize = this.headerSize;
@@ -134,8 +135,8 @@ public class DataManager {
         writeHeaderData();
     }
 
-    private void writeToFile(byte data[], int offset) throws IOException {
-        RandomAccessFile arquivo = new RandomAccessFile(filePath, "rw");
+    private void writeToFile(byte data[], long offset) throws IOException {
+        arquivo = new RandomAccessFile(filePath, "rw");
         arquivo.seek(offset);
         arquivo.write(data);
         arquivo.close();
@@ -144,7 +145,7 @@ public class DataManager {
 
     public int appendToFile(byte data[]) throws IOException {
         // obtem a posição que o registro vai ser inserido
-        int pos = (this.fileSize - headerSize) / registerSize;
+        int pos = (int) (this.fileSize - headerSize) / registerSize;
 
         writeToFile(data, this.fileSize);
 
@@ -163,8 +164,8 @@ public class DataManager {
             throw new IndexOutOfBoundsException();
         }
 
-        byte[] data = new byte[(offset + len) > fileSize ? fileSize - offset : len];
-        RandomAccessFile arquivo = new RandomAccessFile(filePath, "r");
+        byte[] data = new byte[(int) ((offset + len) > fileSize ? fileSize - offset : len)];
+        arquivo = new RandomAccessFile(filePath, "r");
         arquivo.seek(offset);
         arquivo.read(data);
         arquivo.close();
@@ -202,5 +203,4 @@ public class DataManager {
 
         return firstEmpty;
     }
-
 }
