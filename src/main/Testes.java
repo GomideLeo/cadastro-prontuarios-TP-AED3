@@ -35,21 +35,19 @@ public class Testes {
         String subPath;
 
         File f = new File("results.csv");
-        if (f.exists()) {
-            f.delete();
+        if (!f.exists()) {
+            csvWriter = new RandomAccessFile("results.csv", "rw");
+
+            csvWriter.seek(0);
+
+            csvWriter.writeUTF(
+                    " , Tipo de Memória, Tamanho do arquivo de dados, Tamanho do arquivo de índice, Tamanho do arquivo de diretório, "
+                            + "Numero de Registros, Numero de Buckets, Tamanho do Registro, Profundidade Inicial do Diretório, "
+                            + "Profundidade Final do Diretorio, Tamanho dos Buckets, Tempo Total de Inserção, Tempo de Inserção por Registro, "
+                            + "Tempo de atualização de Registro, Tempo de deleção de Registro, Tempo para leitura de Registro\n");
+
+            csvWriter.close();
         }
-
-        csvWriter = new RandomAccessFile("results.csv", "rw");
-
-        csvWriter.seek(0);
-
-        csvWriter.writeUTF(
-                " , Tipo de Memória, Tamanho do arquivo de dados, Tamanho do arquivo de índice, Tamanho do arquivo de diretório, "
-                        + "Numero de Registros, Numero de Buckets, Tamanho do Registro, Profundidade Inicial do Diretório, "
-                        + "Profundidade Final do Diretorio, Tamanho dos Buckets, Tempo Total de Inserção, Tempo de Inserção por Registro, "
-                        + "Tempo de atualização de Registro, Tempo de deleção de Registro, Tempo para leitura de Registro\n");
-
-        csvWriter.close();
 
         // 20 000 - 500B - 2 - 62
 
@@ -187,7 +185,7 @@ public class Testes {
 
         // 5 000 000 - 500B - 8 - 62
 
-        nRegisters = 500000;
+        nRegisters = 5000000;
         insertCodes = getRandomCodes(nRegisters);
         registerSize = 500;
         dirInit = 8;
