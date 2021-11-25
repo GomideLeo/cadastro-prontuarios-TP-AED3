@@ -46,7 +46,7 @@ public class ProntuarioDAO {
         return null;
     }
 
-    public int createProntuario(Prontuario prontuario) throws Exception {
+    public int createProntuario(Prontuario prontuario) throws Exception, IOException {
 
         if (prontuario.getCodigo() == -1) {
             prontuario.setCodigo(managerManager.getNextCode());
