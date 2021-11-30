@@ -215,3 +215,75 @@ Esta estrutura possui uma limitação da quantidade de chaves que pode armazenar
 Para o primeiro caso, a profundidade do bucket é menor que a do diretório, fazendo com que existam no mínimo duas posições do diretório apontando para um mesmo bucket. Então fazemos com que cada segunda posição aponte para um mesmo novo bucket, e todos os objetos do bucket original precisam ser reorganizados entre esses dois novos buckets, possívelmente ativando uma nova divisão, caso todos os itens se mantenham em somente um dos dois buckets.
 
 Para o segundo caso, o existe somente uma instância do bucket dentro do diretório, forçando sua expansão, que é simplesmente aumentar sua profundidade duplicar o diretório antigo tal que para toda posição \textit{p > 2$^{n-1}$} o bucket que será apontado será o apontado pela posição \textit{p - 2$^{n-1}$}. Depois que essa operação é executada, basta fazer uma divisão de bucket.
+
+\section{Benchmarking}
+
+Nesta seção abordamos os resultados dos testes realizados pelo grupo. Para realizar os teste, utilizamos o sistema operacional Windows em um computador que não estava completamente dedicado, ou seja, estava executando outras tarefas em segundo plano, no entanto, para evitar variações por conta de uso, os testes foram realizados enquanto o computador não era utilizado. Utilizamos um HDD de 1TB e um SSD 128GB de capacidade e um processador i5-7200U 2.5GHz. No momento dos testes o HDD tinha cerca de 200 GB não utilizados enquanto o SSD possuía cerca de 5GB livres. Para minimizar o impacto do pouco espaço de armazenamento livre, após cada teste, todos os dados relacionados a ele são deletados.
+
+ % Tabela
+\begin{table}[htbp]
+	\centering
+	\caption{\hspace{0.1cm} Testes Realizados }
+	\vspace{-0.3cm} % espaço entre titulo e tabela
+	\label{tstRealiazdos}
+	% Conteúdo da tabela
+	\begin{tabular}{l|c|c|c}
+  \hline
+    \textbf{Qtd. testes}	& \textbf{Qtd. Registros} & \textbf{Prof. Inicial Dir.} & \textbf{Registros/Bucket} \\
+    \hline
+     5 & 20.000 (\textasciitilde10 MB) & 2 & 62 \\
+     5 & 20.000 (\textasciitilde10 MB) & 8 & 62 \\
+     2 & 200.000 (\textasciitilde100 MB) & 2 & 62 \\
+     2 & 200.000 (\textasciitilde100 MB) & 2 & 126 \\
+     2 & 200.000 (\textasciitilde100 MB) & 2 & 510 \\
+     2 & 200.000 (\textasciitilde100 MB) & 8 & 62 \\
+     2 & 200.000 (\textasciitilde100 MB) & 8 & 126 \\
+     2 & 200.000 (\textasciitilde100 MB) & 8 & 510 \\
+     1 & 500.000 (\textasciitilde250 MB) & 8 & 62 \\
+     1 & 500.000 (\textasciitilde250 MB) & 8 & 510 \\
+     1 & 5.000.000 (\textasciitilde2 GB) & 8 & 62 \\
+     1 & 5.000.000 (\textasciitilde2 GB) & 8 & 510 \\
+     \hline
+ \end{tabular}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=\columnwidth]{figuras/insertion.svg}
+  \caption{Comparação de Inserção}
+  \label{cmp:insercao}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=\columnwidth]{figuras/read.svg}
+  \caption{Comparação de Leitura}
+  \label{cmp:leitura}
+\end{figure}
+
+Realizamos 26 testes diferentes, todos tanto em um HDD quanto em um SSD, variando diferentes parâmetros, os parâmetro eram o número de prontuários inseridos, variando entre 20.000 (10MB), 200.000 (100MB), 500.000 (250MB) e 2.000.000 (2GB); Profundidade inicial do diretório, 2 e 8; O número de registros por bucket (tamanho do bucket), 62, 126 e 510 registros, esses números foram escolhidos para que os buckets possuam tamanhos próximos de 512 bytes, 1MB e 4MB. Assim sendo, testamos algumas das combinações possíveis dos parâmetros (tomar como referência Tabela \ref{tstRealiazdos}), e para cada teste fizemos o benchmarking de operações de leitura, escrita, atualização e deleção, sendo feitas 100 de cada tipo de operação e tirando a média de todas no final.
+
+
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=\columnwidth]{figuras/update.svg}
+  \caption{Comparação de Atualização}
+  \label{cmp:atualizacao}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includesvg[width=\columnwidth]{figuras/deletions.svg}
+  \caption{Comparação de Deleção}
+  \label{cmp:delete}
+\end{figure}
+
+Feitos os testes, nos é retornado um CSV com os dados destes testes, com o qual realizamos uma análise com Pandas e Seaborn na qual foram gerados as figuras \ref{cmp:insercao}, \ref{cmp:leitura}, \ref{cmp:atualizacao} e \ref{cmp:delete}. 
+
+Notou-se que para todos tipos de operações, os tempos médios gradativamente diminuem entre os tamanhos de 10MB, 100MB e 250MB, contudo no arquivo de 2GB todas operações apresentaram maior tempo médio, tanto em SSD, quanto em HDD. Outra observação geral possível é que o tamanho do bucket quando sendo 62 registros apresentou o maior tempo médio em todas operações, contudo a mudança de 126 para 510 não apresentou ganho significativo. 
+
+Fora as obervações gerais, foi possível observar um comportamento estranho em algumas situações, como o tempo de inserção no arquivo de 2GB, que em média levou mais tempo no SSD do que em HDD, fora uma grande variância entre os dados; outro ponto seria que em muitos testes notou-se uma diferença pequena entre o desempenho no HDD e no SSD. Supomos que isso aconteceu devido ao espaço disponível no SSD, contudo seriam necessários mais testes para validar esta hipótese.
+
+
+
